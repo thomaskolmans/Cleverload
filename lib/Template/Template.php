@@ -3,10 +3,16 @@ namespace lib\Template;
 
 class Template{
     
-    public $template;
-    public $template_name;
+    public $filepath;
 
-    public function __construct(){
+    public $dom;
 
+    public function __construct($filepath){
+        $this->filepath = $filepath;
+        $this->load();
+    }
+
+    private function load(){
+        new TemplateLoader($this->dom);
     }
 }

@@ -2,7 +2,7 @@
 
 namespace lib;
 
-use lib\Router\Route;
+use lib\Router\Router;
 
 class Cleverload{
 
@@ -11,13 +11,15 @@ class Cleverload{
     public $file = [];
 
     public static $base;
+    public static $called_base;
+    public static $root;
 
     public function __construct(string $path,$called = __FILE__){
         $this->path = $path;
         $this->called = $called;
         self::$base = $this->getConfig("base");
-        $route = new Route($this->getPath());
-        $route->get();
+        $route = new Router($this->getPath());
+        $route->load();
     }
 
     public static function getPages(){
@@ -37,8 +39,11 @@ class Cleverload{
 
     private function getPath(){
         $called_dir = str_replace("\\","/",pathinfo($this->called)["dirname"]);
+        self::$root = $called_dir;
         $root = str_replace($_SERVER["DOCUMENT_ROOT"], "",$called_dir);
         $from = '/'.preg_quote($root, '/').'/';
-        return preg_replace($from,"",$this->path,1);
+        self::$called_base = preg_replace($from,"",$this->path,1);
+        return self::$called_base;
     }
 }
+?>

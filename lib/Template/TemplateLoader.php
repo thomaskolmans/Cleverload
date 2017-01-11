@@ -5,12 +5,11 @@ namespace lib\Template;
 use lib\Cleverload;
 use lib\Template\Template;
 
-class TemplateLoader extends Template,Cleverload{
+class TemplateLoader extends Cleverload{
 
-    private $filepath;
-
-    public function __construct($filepath){
-        $this->filepath = $filepath;
+    public function __construct($dom){
+        print_r($dom);
     }
+
 
 }
