@@ -3,13 +3,29 @@
 namespace lib\Template;
 
 use lib\Cleverload;
-use lib\Template\Template;
 
-class TemplateLoader extends Cleverload{
+class TemplateLoader{
+
+    public $dom;
+
 
     public function __construct($dom){
-        print_r($dom);
+        $this->dom = $dom;
+        $this->load();
     }
 
+    public function executePlugin(){
+
+    }
+    public function executeTags(){
+
+    }
+    public function setBase(){
+        //sets base of file
+    }
+
+    public function load(){
+        return printf($this->dom->saveHTML());
+    }
 
 }

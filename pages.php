@@ -1,6 +1,7 @@
 <?php
 
 return array(
-    "/users/profile/{username}" => "profile.php",
-    "/users/{username}" => "example.htpl"
+    "/users/profile/{username}" => "test.php",
+    "/users/{username}" => "test.php",
+
 );
