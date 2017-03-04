@@ -1,1 +1,0 @@
-<center> The middle </center>
