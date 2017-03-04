@@ -24,18 +24,18 @@ You need to put the the `router` class in that same location aswell.
 In your `index.php` file you should have this:
 
 ```php
-    use lib\Cleverload;
-    require_once("autoloader.php");
-    new Cleverload;
+use lib\Cleverload;
+require_once("autoloader.php");
+new Cleverload;
 ```
 
 And your `.htacces needs to contain this. 
 
 ```htacces
-    RewriteEngine On
-    RewriteCond %{REQUEST_FILENAME} !-f
-    RewriteCond %{REQUEST_FILENAME} !-d
-    RewriteRule ^(?!index\.php$). index.php [NS,L,DPI]
+RewriteEngine On
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^(?!index\.php$). index.php [NS,L,DPI]
 ```
 
 Full documentation you can find [**here**](https://github.com/thomaskolmans/Cleverload/blob/master/docs/README.md)
