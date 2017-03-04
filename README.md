@@ -53,7 +53,7 @@ Route::get("/foo",funtion(){
 Route::get("/foo","foo.php");
 ```
 
-*Here is a list of type of request recievers**
+*Here is a list of type of request recievers*
 
 ```php
 Route::get($uri,$action);
