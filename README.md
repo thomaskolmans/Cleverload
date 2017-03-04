@@ -40,14 +40,14 @@ RewriteRule ^(?!index\.php$). index.php [NS,L,DPI]
 
 All the files in your `routes` folder are automatically loaded, let's look how you can use the router. 
 
-*This will execute the function when `/foo` is put behind the URL. 
+*This will execute the function when `/foo` is put behind the URL.* 
 ```php
 Route::get("/foo",funtion(){
     // code ...
 });
 ```
 
-*This page will be loaded when `/foo` is put behind the URL. 
+*This page will be loaded when `/foo` is put behind the URL.*
 
 ```php
 Route::get("/foo","foo.php");
