@@ -53,6 +53,28 @@ Route::get("/foo",funtion(){
 Route::get("/foo","foo.php");
 ```
 
+*Here is a list of type of request recievers**
+
+```php
+Route::get($uri,$action);
+```
+```php
+Route::post($uri,$action);
+```
+```php
+Route::delete($uri,$action);
+```
+```php
+Route::put($uri,$action);
+```
+```php
+Route::patch($uri,$action);
+```
+*Or just any of them*
+```php
+Route::any($uri,$action);
+```
+
 Full documentation you can find [**here**](https://github.com/thomaskolmans/Cleverload/blob/master/docs/README.md)
 
 # License 
