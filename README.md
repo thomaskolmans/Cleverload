@@ -29,13 +29,28 @@ require_once("autoloader.php");
 new Cleverload;
 ```
 
-And your `.htacces needs to contain this. 
+And your `.htacces` needs to contain this. 
 
 ```htacces
 RewriteEngine On
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
 RewriteRule ^(?!index\.php$). index.php [NS,L,DPI]
+```
+
+All the files in your `routes` folder are automatically loaded, let's look how you can use the router. 
+
+*This will execute the function when `/foo` is put behind the URL. 
+```php
+Route::get("/foo",funtion(){
+    // code ...
+});
+```
+
+*This page will be loaded when `/foo` is put behind the URL. 
+
+```php
+Route::get("/foo","foo.php");
 ```
 
 Full documentation you can find [**here**](https://github.com/thomaskolmans/Cleverload/blob/master/docs/README.md)
