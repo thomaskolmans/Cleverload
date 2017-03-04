@@ -10,6 +10,11 @@ class Cleverload extends Router{
     public $file = [];
     public $base_file;
 
+    public static $instance = null;
+
+    public static $router;
+
+    public static $filebase;
     public static $base;
     public static $called_base;
     public static $called;
@@ -26,14 +31,32 @@ class Cleverload extends Router{
         self::$called = $this->get_calling_file();
         $this->path = $this->getPath();
         self::$base = $this->getBase();
+        self::$filebase = $_SERVER["DOCUMENT_ROOT"].$this->getBase();
         $this->getDomain();
-        parent::__construct($this->path);
+
+        self::setRouter($this->path);
+
+        self::$instance = $this;
+
+        self::getRouter()->compile();
     }
 
+    public static function getInstance(){
+        if(isset(self::$instance)){
+            return self::$instance;
+        }
+        return null;
+    }
     public static function getPages(){
         return include(__DIR__."/../pages.php");
     }
-
+    public function setRouter($path){
+        self::$router = new Router($path);
+        return $this;
+    }
+    public static function getRouter(){
+        return self::$router;
+    }
     public static function getConfig($item, $key = false){
         $config = include(__DIR__."/../config.php");  
         foreach($config as $keys => $value){
@@ -45,13 +68,13 @@ class Cleverload extends Router{
             }
         }
     }
-
     public function clean_page(){
        return ob_get_clean();
     }
     public function load($url){
         $this->clean_page();
         $this->__construct($url);
+        return $this;
     }
     public function getPath(){
         $called_dir = str_replace("\\","/",pathinfo(self::$called)["dirname"]);
@@ -64,7 +87,8 @@ class Cleverload extends Router{
     }
     public function getBase(){
         $configbase = $this->getConfig("base");
-        return self::$root.$configbase;
+        $root = str_replace($_SERVER["DOCUMENT_ROOT"],"",self::$root);
+        return $root.$configbase;
     }
     private function  get_calling_file() {
         $trace = debug_backtrace();

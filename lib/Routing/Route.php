@@ -2,6 +2,7 @@
 namespace lib\Routing;
 
 use lib\Template\Template;
+use lib\Cleverload;
 
 class Route{
 
@@ -13,6 +14,7 @@ class Route{
 
     protected $methods = [];
     protected $parameters = [];
+    protected $wheres = [];
     protected $sections;
     protected $sectioncount;
 
@@ -21,13 +23,13 @@ class Route{
         $this->sections = $this->setSections($this->uri);
         $this->sectioncount = $this->setSectionCount();
         $this->methods = $methods;
-        if(is_callable($this->action)){
-            $this->action = $action;
-        }else{
-            $this->file = $action;
-        }
+        $this->action = $action;
+        $this->parameters = $this->setParameters();
     }
 
+    public function where($variable,$regex){
+        
+    }
     public function countSectionVariables(){
         $count = 0;
         foreach($this->getSections() as $section){
@@ -39,18 +41,6 @@ class Route{
     }
     public function setSectionCount(){
         return count($this->getSections());
-    }
-    public function getDomain(){
-        return $this->domain;
-    }
-    public function setDomain($domain){
-        return $this->domain = $domain;
-    }
-    public function getSection($number){
-        return $this->getSections()[$number];
-    }
-    public function getSections(){
-        return $this->sections;
     }
     public function setSections(){
         $result = $this->setURISections($this->uri);
@@ -73,17 +63,47 @@ class Route{
         }
         return $arr;
     }
+    public function getParameters(){
+        return $this->parameters;
+    }
+    public function addParameter($parameter){
+        $this->parameters[] = $parameter;
+        return $this;
+    }
+    public function addParameters($parameters){
+        $this->parameters = [];
+        foreach($parameters as $key => $value){
+            $this->parameters[$key] = $value;
+        }
+        return $this;
+    }
+    public function setParameters(){
+        foreach($this->sections as $section){
+            if($section->is("value")){
+                $this->parameters[] = $section->clean();
+            }
+        }
+        return $this;
+    }
+    public function setParametersAsGet(){
+        foreach($this->parameters as $key => $value){
+            $_GET[$key] = $value;
+        }
+        return $_GET;
+    }
     public function load(){
         if(is_callable($this->action)){
-            return $this->loadCallable($this->action,$this->parameters);   
+            return $this->loadCallable($this->action,$this->getParameters());   
         }
-        return $this->loadFile($this->file);
+        $this->setParametersAsGet();
+        $this->action = Cleverload::$filebase."/".$this->action;    
+        return $this->loadFile();
     }
 
     public function loadCallable($func = null,$values = []){
         return $func(...array_values($values));
     }
-    public function loadFile($file){
+    public function loadFile(){
         return new Template($this);
     }
     public function isValid(){
@@ -96,23 +116,38 @@ class Route{
         return $this->URI;
     }
     public function getFile(){
-        return $this->file;
+        return $this->action;
     }
     public function getSectionCount(){
         return $this->sectioncount;
     }
     public function setAction($action){
-        if(is_callable($this->action)){
-            $this->action = $action;
-        }else{
-            $this->file = $action;
-        }
+        $this->action = $action;
     }
     public function getAction(){
-        if(isset($this->action)){
-            return $this->action;
-        }
-        return $this->file;
+        return $this->action;
+    }
+    public function getDomain(){
+        return $this->domain;
+    }
+    public function setDomain($domain){
+        $this->domain = $domain;
+        return $this;
+    }
+    public function getSection($number){
+        return $this->getSections()[$number];
+    }
+    public function getSections(){
+        return $this->sections;
+    }
+    public function getMethods(){
+        return $this->methods;
+    }
+    public function __call($function,$args){
+        Cleverload::getRouter()->call($function,$args);
+    }
+    public static function __callStatic($function,$args){
+        Cleverload::getRouter()->call($function,$args);
     }
 }
 ?>

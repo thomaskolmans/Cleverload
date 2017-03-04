@@ -9,12 +9,12 @@ class Template extends Router{
     
     public $route = null;
     public $filepath = "";
-
     public $dom;
 
     public static $php = [];
 
     public function __construct($input){
+        libxml_use_internal_errors(true);
         if($input instanceof Route){
             $this->route = $input;
             $this->filepath = $input->getFile();
@@ -35,53 +35,61 @@ class Template extends Router{
         }
         return $this->redirect()->error("404");
     }
+    public function getFileInfo(){
+        return pathinfo($this->getFile());
+    }
     public function getDomFromFile($file){
         $dom = new \DOMDocument();
-        $dom->loadHTMLFile($file);
+        $content = file_get_contents($file);
+        $content = $this->extractPHP($content);
+        $dom->loadHTML($content);
         return $dom;
     }
     public function getDom($content){
-        $dom = new \DOMDocument();
-        $dom->loadHTML($content);
-        return $dom;
+        $this->dom = new \DOMDocument();
+        $this->dom->loadHTML($this->extractPHP($content));
+        return $this->dom;
+    }
+    public function getDomSinExtract($content){
+        $this->dom = new \DOMDocument();
+        $this->dom->loadHTML($content);
+        return $this->dom;
+    }
+    public function getContent(){
+        return $this->dom->saveHTML();
+    }
+    public function saveContent($content){
+        $this->getDomSinExtract($content);
+        return $this;
+    }
+    public function getAllowdExtensionsForTags(){
+        return Cleverload::getConfig("extensions_template_tags");
+    }
+    public function getAllowdExtensionsForPlugins(){
+        return Cleverload::getConfig("extension_template_plugin");
     }
     public function extractPHP($content){
         $matches = self::getInBetween($content,"<?php","?>");
         foreach($matches as $match){
             $uid = uniqid();
+            $content = str_replace($match," ".$uid." ",$content);
             self::$php[] = array($uid,$match);
         }
-        return self::$php;
+        return $content;
     }
     public static function insertPHP($content){
         $matches = self::getInBetween($content,"<?php"," ?>");
-
         for($i = 0; $i < count($matches); $i++){
-            $match = $matches[$i];
+            $match = trim($matches[$i]);
             if($i <= count(self::$php) - 1){
-                if(array_keys(self::$php)[$i] === trim($match)){
-
+                if(self::$php[$i][0] == $match){
+                    $content = str_replace(trim($match), self::$php[$i][1], $content);
                 }
                 continue;
             }
         }
-        /*
-        $rotation = 0;
-        foreach($matches as $match){
-            if($rotation <= sizeof(parent::$dom["php"]) - 1){
-                if(array_keys(parent::$dom["php"])[$rotation] == trim($match)){
-                    $string = " ".parent::$dom["php"][trim($match)]." ";
-                    $content = str_replace(trim($match),$string, $content);
-                    $rotation = $rotation + 1;
-                }else{
-                    continue;
-                }
-            }
-        }
         return $content;
-        */
     }
-
     public static function getInBetween($string, $start, $end){
         $contents = array();
         $startLength = strlen($start);
@@ -101,6 +109,6 @@ class Template extends Router{
     }
 
     public function load(){
-        new TemplateLoader($this->dom);
+        new TemplateLoader($this);
     }
 }

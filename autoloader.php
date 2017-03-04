@@ -8,6 +8,4 @@
             return require_once (__DIR__.'/'. $new . '.php'); 
         }
     }); 
-
-
 ?>

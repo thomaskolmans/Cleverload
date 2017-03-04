@@ -1,9 +1,12 @@
 <?php
 namespace lib\Template;
 
-class TemplatePlugin{
+use lib\Template\Template;
+use lib\Template\contracts\ITemplatePlugin;
+
+class TemplatePlugin extends Template implements ITemplatePlugin{
     
-    public function getTemplateCode(){
-        
+    public function __construct(){
+
     }
 }

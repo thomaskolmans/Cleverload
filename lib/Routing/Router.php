@@ -18,13 +18,36 @@ class Router{
         $this->getRoutesFromConfig();
         $this->current = new Route(["HEAD"],$uri,null);
         $this->current->setDomain(Cleverload::$domain);
+    }
 
+    public function compile(){
+        $this->getRouterFiles();
         $this->findRoute($this->current);
-        $this->current->load();
+        if(is_array($this->current)){
+            $this->current[0]->addParameters($this->getArguments($this->current[0],$this->current[1]));
+            $this->current[0]->load();
+        }else{
+            $this->current->load();
+        }
     }
 
     public function get($uri, $action){
-        return $this->add(["GET"],$uri,$action);
+        return $this->add(["GET","HEAD"],$uri,$action);
+    }
+    public function post($uri,$action){
+        return $this->add(["POST"],$uri,$action);
+    }
+    public function delete($uri,$action){
+        return $this->add(["DELETE"],$uri,$action);
+    }
+    public function put($uri,$action){
+        return $this->add(["PUT"],$uri,$action);
+    }
+    public function patch($uri,$action){
+        return $this->add(["PATCH"],$uri,$action);
+    }
+    public function any($uri,$action){
+        return $this->add(["GET","HEAD","PUT","DELETE","OPTIONS","PATCH"]);
     }
     public function group(array $arguments,callable $action){
         $this->addGroup($arguments,$action);
@@ -35,6 +58,7 @@ class Router{
             }
         }
         call_user_func($action,...array_values($this->groupvalues));
+        return $this;
     }
     public function add($method,$uri,$action){
         $this->routes->add(new Route($method,$uri,$action));
@@ -58,43 +82,56 @@ class Router{
             case "domain":
                 $sections_current = Route::explodeIntoSections(".", $this->current->getDomain(),"domain");
                 $sections_group = Route::explodeIntoSections(".",$this->group["arguments"][$grouptype],"domain");
-                if(count($sections_group) === count($sections_current)){
-                    for($i = 0; $i < count($sections_group); $i++){
-                        if($sections_group[$i]->is("value")){
+                if(count($sections_group) === count($sections_current))
+                    for($i = 0; $i < count($sections_group); $i++)
+                        if($sections_group[$i]->is("value"))
                             $this->groupvalues[$sections_group[$i]->clean()] = $sections_current[$i]->get();
-                        }
-                    }
-                }
-            break;
-            case "namespace":
-
             break;
             case "prefix":
-
+                $prefix = $this->group["arguments"][$grouptype];
             break;
         }
+    }
+    public function getArguments($current,$route){
+        $arguments = [];
+        for($i = 0; $i < count($route->getSections()); $i++){
+            $csec = $current->getSection($i);
+            $rsec = $route->getSection($i);
+            if($rsec->is("value")){
+                $arguments[$rsec->clean()] = $csec->get();
+            }
+        }
+        return $arguments;
     }
     public function findRoute($current){
         $routes = $this->routes->getRoutes();
         $extravariables = [];
         $active = [];
+        $notfound  = true;
         for($i = 0; $i < count($current->getSections()); $i++){
-            if(count($routes) >  1){
+            if($notfound){
                 foreach($routes as $route){
                     if($route->getSectionCount() > $i && $current->getSectionCount() >= $route->getSectionCount()){
+                        if(in_array($_SERVER['REQUEST_METHOD'], $route->getMethods())){
                         $now = $route->getSection($i);
-                        if($now->is("value") || $now->get() == $current->getSection($i)->get()){
-                            $active[] = $route;
+                        if($now->is("value") || $now->get() == $current->getSection($i)->get())
+                            $active[] = $route; 
                         }
                     }
                 }
                 $routes = $active;
                 $active = [];
+                if(count($routes) == 1)
+                    $notfound = false;
             }else if(count($routes) < 1){
-                $routes = $this->getDefaultRoute();
+                if(count($current->getSections()) < 1){
+                    return $this->getDefaultRoute();
+                }else{
+                    return $this->Redirect()->error("404");
+                }
                 break;
             }else{
-                if($i > $route->getSectionCount()){
+                if($i > $current->getSectionCount()){
                     $extravariables[] = $current->getSection($i)->get();
                 }
             }
@@ -110,36 +147,43 @@ class Router{
             }
             $routes = $active;
             $active = [];
+            if(count($routes) < 1){
+                return $this->getDefaultRoute();
+            }
+        }else{
+            if(count($routes) < 1){
+                return $this->Redirect()->error("404");
+            }
         }
-        if(count($routes) < 1){
-            return $this->getDefaultRoute();
-        }
+
         $this->setExtraVariables($extravariables);
         $this->current->setAction($routes[0]->getAction());
+        $match = array($this->current,$routes[0]);
+        $this->current = $match;
+
         return $this->current;
     }
     public function getDefaultRoute(){
         if(Cleverload::getConfig("default_file") !== ""){
             if(file_exists(Cleverload::getConfig("default_file"))){
-                $this->file = Cleverload::getConfig("default_file");
+                $file =  Cleverload::getConfig("default_file");
+                return $this->current->setAction($file);
             }
         }
         $accepted = ["php","html","htm","tpl","htpl"];
-        $files = scandir(Cleverload::$base);
+        $files = scandir(Cleverload::$filebase);
         if(count($files) > 0){
             foreach($files as $file){
                 $pathinfo = pathinfo($file);
-                if(array_key_exists("extension", $pathinfo)){
-                    if(in_array($pathinfo["extension"], $accepted)){
-                        if($pathinfo["filename"] == "index"){
-                            $filepos = Cleverload::$base."/".$file;
-                            if($filepos != str_replace("\\","/",Cleverload::$called)){
-                                return $this->current->setAction($file);
-                            }
+                if(array_key_exists("extension", $pathinfo) 
+                    && in_array($pathinfo["extension"], $accepted) 
+                    && $pathinfo["filename"] == "index"){
+                        $filepos = Cleverload::$filebase."/".$file;
+                        if($filepos != str_replace("\\","/",Cleverload::$called)){
+                            return $this->current->setAction($file);
                         }
                     }
-                }
-            }
+            }           
         }
         return $this->Redirect()->error("404");
     }
@@ -153,12 +197,20 @@ class Router{
         }
         return $_GET;
     }
+    private function getRouterFiles(){
+        $files = scandir(Cleverload::$root."/routes");
+        $files = array_slice($files, -1,1);
+        foreach($files as $file){
+            require_once(Cleverload::$root."/routes/".$file);
+        }
+    }
     private function getRoutesFromConfig(){
         $routes = Cleverload::getPages();
         foreach($routes as $uri => $file){
             $this->add(["GET"],$uri,$file);
         }
     }
+    
     private function getPageFromConfig($item,$key = false){
         foreach(Cleverload::getPages() as $keys => $value){
             if($keys == $item){
@@ -169,6 +221,11 @@ class Router{
             }
         }
     }
+
+    public function call($func,$args){
+        return $this->{$func}(...array_values($args));
+    }
+
     public function Redirect($url = null){
         $redirect = new Redirect();
         if($url != null){
