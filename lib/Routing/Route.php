@@ -14,7 +14,10 @@ class Route{
 
     protected $methods = [];
     protected $parameters = [];
+
     protected $wheres = [];
+    protected $if = true;
+
     protected $sections;
     protected $sectioncount;
 
@@ -24,11 +27,25 @@ class Route{
         $this->sectioncount = $this->setSectionCount();
         $this->methods = $methods;
         $this->action = $action;
-        $this->parameters = $this->setParameters();
+        $this->setParameters();
     }
 
     public function where($variable,$regex){
-        
+        $this->wheres[$variable] = $regex;
+        return $this;
+    }
+
+    public function when($true){
+        $this->if = $true;
+        return $this;
+    }
+    public function primary(){
+        if(count($this->getParameters()) < 1){
+            $this->setDefault($this);
+        }else{
+            throw new \Exception("You can't set the default to a path with a variable");
+        }
+        return $this;
     }
     public function countSectionVariables(){
         $count = 0;
@@ -80,7 +97,7 @@ class Route{
     public function setParameters(){
         foreach($this->sections as $section){
             if($section->is("value")){
-                $this->parameters[] = $section->clean();
+                array_push($this->parameters,$section->clean());
             }
         }
         return $this;
@@ -135,7 +152,10 @@ class Route{
         return $this;
     }
     public function getSection($number){
-        return $this->getSections()[$number];
+        if(array_key_exists($number, $this->getSections())){
+            return $this->getSections()[$number];
+        }
+        return null;
     }
     public function getSections(){
         return $this->sections;
@@ -143,11 +163,17 @@ class Route{
     public function getMethods(){
         return $this->methods;
     }
+    public function getWhere(){
+        return $this->wheres;
+    }
+    public function getIf(){
+        return $this->if;
+    }
     public function __call($function,$args){
         Cleverload::getRouter()->call($function,$args);
     }
     public static function __callStatic($function,$args){
-        Cleverload::getRouter()->call($function,$args);
+        return Cleverload::getRouter()->call($function,$args);
     }
 }
 ?>

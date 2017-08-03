@@ -7,6 +7,7 @@ class RouterCollection{
 
     public function add(Route $route){
         $this->routes[] = $route;
+        return $route;
     }
     public function getRoutes(){
         return $this->routes;

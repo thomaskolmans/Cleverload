@@ -3,6 +3,7 @@
 namespace lib\Template;
 
 use lib\Cleverload;
+use lib\Exception\UnexpectedPlugin;
 
 class TemplateLoader{
 
@@ -10,7 +11,6 @@ class TemplateLoader{
     public $template;
 
     private $tmp;
-
 
     public function __construct($template){
         $this->template = $template;
@@ -44,8 +44,28 @@ class TemplateLoader{
             new $class($this->dom);
         }
     }
-    public function getPlugins($dom){
-        
+    public function getPlugins($content){
+        preg_match_all("/(?<=@{)(.*)(?=})/", $content, $plugins);
+        foreach($plugins[0] as $plugin){
+            $parts = explode(" ",$plugin);
+            $compile = $parts[0];
+            $class = "lib\Template\\plugins\\TPlugin_".$compile;
+            if(class_exists($class)){
+                new $class($content,$plugin);
+            }else{
+                throw new UnexpectedPlugin($compile." is not valid");
+            }
+
+        }
+    }
+    public function getForms(){
+        $forms = $this->dom->getElementsByTagName("form");
+        return $forms;
+    }
+    public function loadForms(){
+        $forms = $this->getForms();
+        $output = "";
+        return $output;
     }
     public function addBase(){
         $content = $this->template->getContent();
@@ -65,8 +85,7 @@ class TemplateLoader{
     }
     public function getDomContent(){
         $html = $this->dom->saveHTML();
-        $html = htmlspecialchars_decode($html);
-        return  $this->template->insertPHP($html);
+        return htmlspecialchars_decode($this->template->insertPHP($html).$this->loadForms()); 
     }
     public function executeFile($content){
         $tmp = tempnam(sys_get_temp_dir(), "contentfile");
