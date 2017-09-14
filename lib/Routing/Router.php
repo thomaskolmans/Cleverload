@@ -23,7 +23,7 @@ class Router{
 
     public function compile(){
         $this->getRouterFiles();
-        $this->findRoute($this->current);
+        $this->getRoute($this->current);
         if(is_array($this->current)){
             $this->current[0]->addParameters($this->getArguments($this->current[0],$this->current[1]));
             $this->current[0]->load();
@@ -85,7 +85,7 @@ class Router{
     public function getGroupValues(){
         $grouptype = $this->getGroupType();
         switch($grouptype){
-            case "domain":
+            case "domain":  
                 $sections_current = Route::explodeIntoSections(".", $this->current->getDomain(),"domain");
                 $sections_group = Route::explodeIntoSections(".",$this->group["arguments"][$grouptype],"domain");
                 if(count($sections_group) === count($sections_current))
@@ -100,7 +100,20 @@ class Router{
                         }
             break;
             case "namespace":
-                $namespace = $this->group["arguments"][$grouptype];
+                $namespace = new Route(["GET","HEAD","PUT","DELETE","OPTIONS","PATCH","POST"],$this->group["arguments"][$this->getGroupType()],null);
+                $match = false;
+                if(!(count($this->current->getSections()) > 0)){
+                    return $this->group['match'] = false;
+                }
+                for($i = 0; $i < count($namespace->getSections()); $i++){
+                    $namespace_section = $namespace->getSection($i);
+                    $current = $this->current->getSection($i);
+                    if($namespace_section->get() !== $current->get()){
+                        return $this->group['match'] = false;
+                        break;
+                    }
+                }
+                return $this->group['match'] = true;
             break;
         }
     }
@@ -116,7 +129,7 @@ class Router{
         }
         return $arguments;
     }
-    public function findRoute($current){
+    public function getRoute($current){
         $routes = $this->routes->getRoutes();
         $extravariables = [];
         $active = [];
@@ -174,7 +187,20 @@ class Router{
                     $this->setExtraVariables($extravariables);
                     return $this->getDefaultRoute();
                 }else{
-                    return $this->Redirect()->error("404");
+                    $namespace = new Route(["GET","HEAD","PUT","DELETE","OPTIONS","PATCH","POST"],$this->group["arguments"][$this->getGroupType()],null);
+                    $match = false;
+                    for($i = 0; $i < count($namespace->getSections()); $i++){
+                        $namespace_section = $namespace->getSection($i);
+                        $current = $this->current->getSection($i);
+                        if($namespace_section->get() !== $current->get()){
+                            return $this->Redirect()->error("404");
+                            break;
+                        }
+                    }
+                    if(count($namespace->getSections()) === 0){
+                        return $this->Redirect()->error("404");
+                    }
+                    return $this->getDefaultRoute();
                 }
             }
         }
