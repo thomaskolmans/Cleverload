@@ -25,6 +25,7 @@ class Request{
 
         $this->router = new Router($this);
     }
+
     public function getRouter(){
         return $this->router;
     }

@@ -11,6 +11,7 @@ class Router{
 
     public $route;
     public $routes;
+    public $defaults;
 
     public $groupstack = [];
 
@@ -48,6 +49,13 @@ class Router{
         $route->setRouter($this)->setGroupstack($this->groupstack);
         return $route;
     }
+    public function addDefault(Route $route){
+        $this->defaults[] = $route;
+        return $this;
+    }
+    public function getDefault(){
+        return $this->route->getClosest($this);
+    }
     public function addToGroupstack($arguments){
         if(!empty($arguments)){
             $this->groupstack[] = $arguments;
@@ -57,18 +65,6 @@ class Router{
         $this->addToGroupstack($arguments,$action);
         $action($this);
         array_pop($this->groupstack);
-    }
-    public function setDefault($default){
-        $this->defaults[] = $default;
-        return $this;
-    }
-    public function getDefault(){
-        foreach($this->defaults as $default){
-            if($default->getIf()){
-                return $default;
-            }
-        }
-        return null;
     }
     public function getRoutes(){
         $this->getRouterFiles();

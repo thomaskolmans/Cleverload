@@ -4,6 +4,7 @@ namespace lib\Routing;
 use lib\Template\Template;
 use lib\Http\Response;
 use lib\Cleverload;
+use Exception;
 
 class Route{
 
@@ -39,6 +40,89 @@ class Route{
 
         $this->setParameters();
     }
+    public function getResponse(Router $router){
+        $this->run();
+        $this->router = $router;
+        $this->response = new Response();
+
+        if(is_file(Cleverload::getInstance()->getStaticFilesDir().$this->uri)){
+            printf(file_get_contents($this->uri));
+        }
+        $matchedroute = $this->getMatch($this->router);
+    }
+    public function where($variable,$regex){
+        $this->wheres[$variable] = $regex;
+        return $this;
+    }
+    public function when($true){
+        $this->if = $true;
+        return $this;
+    }
+    public function primary(){
+        if(count($this->getParameters()) < 1){
+            $this->router->addDefault($this);
+        }else{
+            throw new \Exception("You can't set the default to a path with a variable");
+        }
+        return $this;
+    }
+    public function closestMatch($routes){
+        for($i = 0; $i < $this->sectioncount; $i++){
+            $matches = [];
+            foreach($routes as $route){
+            }
+        }
+    }
+    public function getMatch(Router $router){
+        $routes = $router->getRoutes();
+        $found = false;
+        for($i = 0; $i < $this->sectioncount; $i++){
+            $matches = [];
+            if(!$found && count($routes) > 0){
+                $matches = $this->matchSectionToRoutes($i,$routes);
+                $routes = $matches;
+                if(count($routes) == 1){
+                    $found = true;
+                }
+                continue;
+            }else{
+                break;
+            }
+        }
+        if(!$found){
+            if(false){
+
+            }
+            return $this->response->notFound();
+        }
+        return $routes[0];
+    }
+    private function matchSectionToRoutes($i,$routes){
+        $matches = [];
+        foreach($routes as $route){
+            if($this->equalsSection($i,$route)){
+                if(count($this->getWhere()) > 0 && $this->getSection($i)->isValue()){
+                    if(!preg_match("/^".$route->getWhere()[$this->getSection($i)->clean()]."+$/",$this->getSection($i)->get())){
+                        continue;
+                    }
+                }
+                if(!$route->getIf()) continue;
+                if($route->getDomain() != null){
+                    if($route->getDomain() === $this->getDomain()) continue;
+                }
+                $matches[] = $route;
+            }
+        }
+        return $matches;
+    }
+    private function equalsSection($i,$route){
+        if($this->getSectionCount() >= $route->getSectionCount() && $this->hasMethod($route->getRouter()->getRequest()->getMethod())){
+            if($this->getSection($i)->toString() === $route->getSection($i)->toString() || $this->getSection($i)->isValue()){
+                return true;
+            }
+        }
+        return false;
+    }
     public function setGroupstack($groupstack){
         $this->groupstack = $groupstack;
         $this->defractorGroupstack();
@@ -58,77 +142,6 @@ class Route{
                 }
             }  
         }
-    }
-    public function getResponse(Router $router){
-        $this->run();
-        $this->router = $router;
-        $this->response = new Response();
-
-        if(is_file(Cleverload::getInstance()->getStaticFilesDir().$this->uri)){
-            printf(file_get_contents($this->uri));
-        }
-        $matchedroute = $this->getMatch($this->router);
-        $matchedroute->load();
-    }
-    public function getMatch(Router $router){
-        $routes = $router->getRoutes();
-        $found = false;
-        for($i = 0; $i < $this->sectioncount; $i++){
-            $matches = [];
-            if(!$found && count($routes) > 0){
-                $matches = $this->matchSectionToRoutes($i,$routes);
-                $routes = $matches;
-                if(count($routes) == 1){
-                    $found = true;
-                }
-            }else{
-                break;
-            }
-        }
-        if(!$found){
-        }
-        return $routes[0];
-    }
-    private function matchSectionToRoutes($i,$routes){
-        $matches = [];
-        foreach($routes as $route){
-            if($this->equalsSection($i,$route)){
-                if(count($this->getWhere()) > 0 && $this->getSection($i)->isValue()){
-                    if(!preg_match("/^".$route->getWhere()[$this->getSection($i)->clean()]."+$/",$this->getSection($i)->get())){
-                        continue;
-                    }
-                }
-                if(!$route->getIf()){
-                    continue;
-                }
-                $matches[] = $route;
-            }
-        }
-        return $matches;
-    }
-    private function equalsSection($i,$route){
-        if($this->getSectionCount() >= $route->getSectionCount() && $this->hasMethod($route->getRouter()->getRequest()->getMethod())){
-            if($this->getSection($i)->toString() === $route->getSection($i)->toString() || $this->getSection($i)->isValue()){
-                return true;
-            }
-        }
-        return false;
-    }
-    public function where($variable,$regex){
-        $this->wheres[$variable] = $regex;
-        return $this;
-    }
-    public function when($true){
-        $this->if = $true;
-        return $this;
-    }
-    public function primary(){
-        if(count($this->getParameters()) < 1){
-            $this->setDefault($this);
-        }else{
-            throw new \Exception("You can't set the default to a path with a variable");
-        }
-        return $this;
     }
     public function countSectionVariables(){
         $count = 0;

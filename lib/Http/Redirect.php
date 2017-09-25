@@ -17,9 +17,9 @@ class Redirect extends Request{
     public function forward(){
 
     }
-    public function error($type){
-        $httperror =  new HttpError;
-        return $httperror->error($type);
+    public function error($errortype){
+        $httperror = new HttpError();
+        return $httperror->get($code);
     }
 }
 
