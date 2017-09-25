@@ -15,14 +15,11 @@ class TemplateLoader{
     public function __construct($template){
         $this->template = $template;
         $this->dom = $this->template->dom;
-        $this->execute();
-        $this->addBase();
-        $this->load();
     }
-
     public function execute(){
         $this->executePlugins();
         $this->executeTags();
+        $this->load();
     }
     public function executePlugins(){
         if(in_array($this->template->getFileInfo()["extension"], $this->template->getAllowdExtensionsForPlugins())){
@@ -57,31 +54,6 @@ class TemplateLoader{
             }
 
         }
-    }
-    public function getForms(){
-        $forms = $this->dom->getElementsByTagName("form");
-        return $forms;
-    }
-    public function loadForms(){
-        $forms = $this->getForms();
-        $output = "";
-        return $output;
-    }
-    public function addBase(){
-        $content = $this->template->getContent();
-        if($this->dom->getElementsByTagName("head")->length == 0){
-            $content = $this->setBase().$content;
-        }else{
-            $content = str_replace("<head>", "<head>".$this->setBase(), $content);
-        }
-        $this->template->saveContent($content);
-        $this->dom = $this->template->dom;
-    }
-    public function setBase(){
-        return "<base href='".$this->getBase()."/'>";
-    }
-    private function getBase(){
-        return Cleverload::$base;
     }
     public function getDomContent(){
         $html = $this->dom->saveHTML();

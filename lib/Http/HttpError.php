@@ -3,7 +3,7 @@ namespace lib\Http;
 
 class HttpError{
 
-    public function error($errortype = "404"){
+    public function error($errortype = 404){
         $this->getDefaultError($errortype);
     }
 

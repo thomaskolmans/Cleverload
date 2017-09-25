@@ -1,30 +1,47 @@
 <?php
-
 namespace lib\Http;
+
+use lib\Routing\Router;
 
 class Request{
 
-    public $header;
-    public $history;
+    public $router;
+    public $request;
 
-    public function __construct($headers = ""){
-        $this->header = $headers;
-        $this->getHistory();
+    public $path;
+    public $domain;
+    public $method;
+    public $userip;
+    public $serverip;
+    public $time;
+
+    public function __construct($request){
+        $this->request = $request;
+        $this->path = $this->request["REQUEST_URI"];
+        $this->domain = $this->request["SERVER_NAME"];
+        $this->method = $this->request["REQUEST_METHOD"];
+        $this->userip = $this->request["REMOTE_ADDR"];
+        $this->serverip = $this->request["SERVER_ADDR"];
+
+        $this->router = new Router($this);
     }
-    public function set($header){
-        $this->header .= $header;
+    public function getRouter(){
+        return $this->router;
     }
-    public function setHistory($path){
-        return $_SESSION["history"] = $path;
+    public function getPath(){
+        return $this->path;
     }
-    private function getHistory(){
-        if(isset($_SESSION["history"])){
-            return $this->history = $_SESSION["history"];
-        }
-        return $this->history = null;
-    }   
-    public function send(){
-        return header($this->header);
+    public function getServerip(){
+        return $this->serverip;
+    }
+    public function getUserip(){
+        return $this->userip;
+    }
+    public function getMethod(){
+        return $this->method;
+    }
+    public function getDomain(){
+        return $this->domain;
     }
 }
 

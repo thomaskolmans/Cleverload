@@ -109,6 +109,7 @@ class Template extends Router{
     }
 
     public function load(){
-        new TemplateLoader($this);
+        $templateloader = new TemplateLoader($this);
+        $templateloader->execute();
     }
 }

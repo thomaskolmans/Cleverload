@@ -2,12 +2,18 @@
 namespace lib\Routing;
 
 use lib\Template\Template;
+use lib\Http\Response;
 use lib\Cleverload;
 
 class Route{
 
+    private $router;
+    public $response;
+
     public $uri;
     public $domain;
+
+    public $groupstack;
 
     private $file = null;
     private $action = null;
@@ -23,18 +29,95 @@ class Route{
 
     public function __construct($methods,$uri,$action){
         $this->uri = $uri;
-        $this->sections = $this->setSections($this->uri);
-        $this->sectioncount = $this->setSectionCount();
+        $this->setAction($action);
         $this->methods = $methods;
-        $this->action = $action;
+        $this->run();
+    }
+    public function run(){
+        $this->sections = $this->setSections();
+        $this->sectioncount = $this->setSectionCount();
+
         $this->setParameters();
     }
+    public function setGroupstack($groupstack){
+        $this->groupstack = $groupstack;
+        $this->defractorGroupstack();
+        $this->run();
+    }
+    public function defractorGroupstack(){
+        for($i = 0; $i < count($this->groupstack); $i++){
+            foreach($this->groupstack[$i] as $grouptype => $value){
+                switch($grouptype){
+                    case "namespace":
+                    case "prefix":
+                        $this->uri = $value.$this->uri;
+                    break;
+                    case "domain":
+                        $this->domain = $value;
+                    break;
+                }
+            }  
+        }
+    }
+    public function getResponse(Router $router){
+        $this->run();
+        $this->router = $router;
+        $this->response = new Response();
 
+        if(is_file(Cleverload::getInstance()->getStaticFilesDir().$this->uri)){
+            printf(file_get_contents($this->uri));
+        }
+        $matchedroute = $this->getMatch($this->router);
+        $matchedroute->load();
+    }
+    public function getMatch(Router $router){
+        $routes = $router->getRoutes();
+        $found = false;
+        for($i = 0; $i < $this->sectioncount; $i++){
+            $matches = [];
+            if(!$found && count($routes) > 0){
+                $matches = $this->matchSectionToRoutes($i,$routes);
+                $routes = $matches;
+                if(count($routes) == 1){
+                    $found = true;
+                }
+            }else{
+                break;
+            }
+        }
+        if(!$found){
+        }
+        return $routes[0];
+    }
+    private function matchSectionToRoutes($i,$routes){
+        $matches = [];
+        foreach($routes as $route){
+            if($this->equalsSection($i,$route)){
+                if(count($this->getWhere()) > 0 && $this->getSection($i)->isValue()){
+                    if(!preg_match("/^".$route->getWhere()[$this->getSection($i)->clean()]."+$/",$this->getSection($i)->get())){
+                        continue;
+                    }
+                }
+                if(!$route->getIf()){
+                    continue;
+                }
+                $matches[] = $route;
+            }
+        }
+        return $matches;
+    }
+    private function equalsSection($i,$route){
+        if($this->getSectionCount() >= $route->getSectionCount() && $this->hasMethod($route->getRouter()->getRequest()->getMethod())){
+            if($this->getSection($i)->toString() === $route->getSection($i)->toString() || $this->getSection($i)->isValue()){
+                return true;
+            }
+        }
+        return false;
+    }
     public function where($variable,$regex){
         $this->wheres[$variable] = $regex;
         return $this;
     }
-
     public function when($true){
         $this->if = $true;
         return $this;
@@ -50,7 +133,7 @@ class Route{
     public function countSectionVariables(){
         $count = 0;
         foreach($this->getSections() as $section){
-            if($section->is("value")){
+            if($section->isValue()){
                 $count++;
             }
         }
@@ -60,16 +143,7 @@ class Route{
         return count($this->getSections());
     }
     public function setSections(){
-        $result = $this->setURISections($this->uri);
-        array_push($result, $this->setDomainSections($this->domain));
-        $result = array_filter($result);
-        return $result;
-    }
-    public function setURISections($path){
-        return $this->explodeIntoSections("/",$path,"uri");
-    }
-    public function setDomainSections($domain){
-        return $this->explodeIntoSections(".", $domain,"domain");
+        return $this->explodeIntoSections("/",$this->uri,"uri");
     }
     public static function explodeIntoSections($divider,$string,$type){
         $arr = [];
@@ -79,6 +153,13 @@ class Route{
             }
         }
         return $arr;
+    }
+    public function setRouter(Router $router){
+        $this->router = $router;
+        return $this;
+    }
+    public function getRouter(){
+        return $this->router;
     }
     public function getParameters(){
         return $this->parameters;
@@ -96,7 +177,7 @@ class Route{
     }
     public function setParameters(){
         foreach($this->sections as $section){
-            if($section->is("value")){
+            if($section->isValue()){
                 array_push($this->parameters,$section->clean());
             }
         }
@@ -132,16 +213,20 @@ class Route{
     public function getURI(){
         return $this->URI;
     }
-    public function getFile(){
-        return $this->action;
-    }
     public function getSectionCount(){
         return $this->sectioncount;
     }
     public function setAction($action){
-        $this->action = $action;
+        if(is_callable($action)){
+            $this->action = $action;
+        }else{
+            $this->file = $action;
+        }
     }
     public function getAction(){
+        return $this->action;
+    }
+    public function getFile(){
         return $this->action;
     }
     public function getDomain(){
@@ -160,6 +245,12 @@ class Route{
     public function getSections(){
         return $this->sections;
     }
+    public function hasMethod($method){
+        if(in_array($method, $this->getMethods())){
+            return true;
+        }
+        return false;
+    }
     public function getMethods(){
         return $this->methods;
     }
@@ -170,10 +261,10 @@ class Route{
         return $this->if;
     }
     public function __call($function,$args){
-        Cleverload::getRouter()->call($function,$args);
+        return Cleverload::getInstance()->request->router->call($function,$args);
     }
     public static function __callStatic($function,$args){
-        return Cleverload::getRouter()->call($function,$args);
+        return Cleverload::getInstance()->request->router->call($function,$args);
     }
 }
 ?>

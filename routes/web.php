@@ -2,10 +2,18 @@
 use lib\Routing\Route;
 use lib\Cleverload;
 
-Route::post("/set/username",function(){
-    var_dump($_POST);
+Route::group(["namespace" => "/fuck"],function(){
+    Route::group(["domain" => "localhost"],function(){
+        Route::get("/hey",function(){
+            echo  "hey?";
+        });
+    }); 
 });
-Route::get("/home",function(){
-    echo "fuck you <br>";
+Route::get("/shitz",function(){
+    echo "cocksucka";
+});
+Route::get("/another",function(){
+    echo "test";
 })->primary();
+
 ?>
