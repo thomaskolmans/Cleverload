@@ -1,8 +1,6 @@
 <?php
 namespace lib\Http;
 
-use lib\Routing\Router;
-
 class Request{
 
     public $router;
@@ -17,15 +15,18 @@ class Request{
 
     public function __construct($request){
         $this->request = $request;
-        $this->path = $this->request["REQUEST_URI"];
+        $this->path = str_replace($this->getDepth(), "", $this->request["REQUEST_URI"]);
         $this->domain = $this->request["SERVER_NAME"];
         $this->method = $this->request["REQUEST_METHOD"];
         $this->userip = $this->request["REMOTE_ADDR"];
         $this->serverip = $this->request["SERVER_ADDR"];
-
-        $this->router = new Router($this);
     }
-
+    public function getDepth(){
+        return str_replace($this->request["DOCUMENT_ROOT"],"",str_replace("\\","/",getcwd())."/");
+    }
+    public function setRouter($router){
+        $this->router = $router;
+    }
     public function getRouter(){
         return $this->router;
     }
@@ -43,6 +44,9 @@ class Request{
     }
     public function getDomain(){
         return $this->domain;
+    }
+    public function getRequest(){
+        return $this->request;
     }
 }
 

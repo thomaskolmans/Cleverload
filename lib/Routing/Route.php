@@ -2,14 +2,12 @@
 namespace lib\Routing;
 
 use lib\Template\Template;
-use lib\Http\Response;
 use lib\Cleverload;
 use Exception;
 
 class Route{
 
     private $router;
-    public $response;
 
     public $uri;
     public $domain;
@@ -43,12 +41,12 @@ class Route{
     public function getResponse(Router $router){
         $this->run();
         $this->router = $router;
-        $this->response = new Response();
-
         if(is_file(Cleverload::getInstance()->getStaticFilesDir().$this->uri)){
             printf(file_get_contents($this->uri));
         }
         $matchedroute = $this->getMatch($this->router);
+        $matchedroute->load();
+        $this->router->response->send();
     }
     public function where($variable,$regex){
         $this->wheres[$variable] = $regex;
@@ -93,7 +91,7 @@ class Route{
             if(false){
 
             }
-            return $this->response->notFound();
+            return $this->getRouter()->response->notFound();
         }
         return $routes[0];
     }
@@ -204,18 +202,18 @@ class Route{
     }
     public function load(){
         if(is_callable($this->action)){
-            return $this->loadCallable($this->action,$this->getParameters());   
-        }
-        $this->setParametersAsGet();
-        $this->action = Cleverload::$filebase."/".$this->action;    
+            return $this->callFunction($this->action,$this->getParameters());   
+        }    
         return $this->loadFile();
     }
 
-    public function loadCallable($func = null,$values = []){
+    public function callFunction($func = null,$values = []){
         return $func(...array_values($values));
     }
     public function loadFile(){
-        return new Template($this);
+        if(Cleverload::getInstance()->template){
+            return $this->router->response->setBody(new Template($this));
+        }
     }
     public function isValid(){
         if(preg_match("/[a-zA-Z\/}{]*/", $path)){
@@ -233,7 +231,7 @@ class Route{
         if(is_callable($action)){
             $this->action = $action;
         }else{
-            $this->file = $action;
+            $this->file = Cleverload::getInstance()->root.$action;
         }
     }
     public function getAction(){

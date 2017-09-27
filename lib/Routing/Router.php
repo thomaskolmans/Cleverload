@@ -4,10 +4,12 @@ namespace lib\Routing;
 use lib\Cleverload;
 use lib\Http\Redirect;
 use lib\Http\Request;
+use lib\Http\Response;
 
 class Router{
     
     public $request;
+    public $response;
 
     public $route;
     public $routes;
@@ -17,6 +19,7 @@ class Router{
 
     public function __construct(Request $request){
         $this->request = $request;
+        $this->response = new Response();
         $this->routes = new RouterCollection();
 
         $this->route = new Route([$request->getMethod()],$request->getPath(),null);
@@ -81,7 +84,7 @@ class Router{
         return $this->request;
     }
     private function getRouterFiles(){
-        $this->requireAllFiles(CROOT."/routes/");
+        $this->requireAllFiles(Cleverload::getInstance()->root."/routes/");
         return $this;
     }
     private function requireAllFiles($path){

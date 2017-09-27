@@ -1,7 +1,7 @@
 ## Cleverload
 _A lightweight library, that takes care of your routing and file loading_
 
-##Installation
+## Installation
 _How do you install?_
 
 You can use composer
@@ -10,4 +10,7 @@ You can use composer
 ``
 Or by manually downloading it from here.
 
-##Usage
+## Usage
+
+**Activate Cleverload**
+In order to have cleverload work, you have to 

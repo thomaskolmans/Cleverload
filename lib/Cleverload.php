@@ -2,11 +2,14 @@
 namespace lib;
 
 use lib\Http\Request;
+use lib\Routing\Router;
 
 class Cleverload{
 
     public $request;
+    public $root;
 
+    public $template = true;
     public $staticfilesdir = "./";
 
     public $start_time;
@@ -16,10 +19,10 @@ class Cleverload{
 
     public function __construct(Request $request){
         $this->start_time = microtime();
-        define("ROOT",__DIR__);
-        define("CROOT",getcwd());
         $this->request = $request;
+        $this->root = getcwd();
         self::$instance = $this;
+        $this->request->setRouter(new Router($this->request));
     }
     public static function getInstance(){
         if(isset(self::$instance)){
@@ -43,6 +46,12 @@ class Cleverload{
     }
     public function getExcecutiontime(){
         return  $this->end_time - $this->start_time;
+    }
+    public function setTemplate($boolean){
+        $this->template = $boolean;
+    }
+    public function getTemplate(){
+        return $this->template;
     }
     public function setStaticFilesDir($dir){
         $this->staticfilesdir = $dir;

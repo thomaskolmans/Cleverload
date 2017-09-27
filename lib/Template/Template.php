@@ -33,7 +33,7 @@ class Template extends Router{
         if(file_exists($this->filepath)){
             return $this->filepath;
         }
-        return $this->redirect()->error("404");
+        return $this->route->getRouter()->response->notfound();
     }
     public function getFileInfo(){
         return pathinfo($this->getFile());
