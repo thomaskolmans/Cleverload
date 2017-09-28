@@ -25,7 +25,7 @@ _index.php_ same folder as the _.htaccess_.
     use lib\Cleverload;
     use lib\Http\Request;
     use lib\Routing\Router;
-    
+
     require_once("autoloader.php");
 
     $request = new Request($_SERVER);
