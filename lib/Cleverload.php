@@ -8,6 +8,7 @@ class Cleverload{
 
     public $request;
     public $root;
+    public $sroot;
 
     public $template = true;
     public $staticfilesdir = "./";
@@ -21,6 +22,7 @@ class Cleverload{
         $this->start_time = microtime();
         $this->request = $request;
         $this->root = getcwd();
+        $this->sroot = $this->request->getRuest()["DOCUMENT_ROOT"];
         self::$instance = $this;
         $this->request->setRouter(new Router($this->request));
     }

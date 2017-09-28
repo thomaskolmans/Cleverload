@@ -9,7 +9,7 @@ Route::group(["namespace" => "/fuck"],function(){
         });
     }); 
 });
-Route::get("/shitz","index.tpl";
+Route::get("/shitz","index.tpl");
 Route::get("/another",function(){
     echo "test";
 })->primary();

@@ -46,6 +46,7 @@ class Route{
         }
         $matchedroute = $this->getMatch($this->router);
         $matchedroute->load();
+        $this->router->routes->clear();
         $this->router->response->send();
     }
     public function where($variable,$regex){

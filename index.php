@@ -7,6 +7,5 @@ require_once("autoloader.php");
 
 $request = new Request($_SERVER);
 $cleverload = new Cleverload($request);
-
 $cleverload->getRequest()->getRouter()->getResponse();
 ?>

@@ -12,6 +12,9 @@ class RouterCollection{
         $this->routes[] = $route;
         return $route;
     }
+    public function clear(){
+        return unset($this->routes);
+    }
     public function getRoutes(){
         return $this->routes;
     }
