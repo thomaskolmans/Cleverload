@@ -1,3 +1,6 @@
+<img src="/cleverload.svg" width="260px" align="center" />
+
+
 # Cleverload
 _A lightweight library, that takes care of your routing and file loading_
 
