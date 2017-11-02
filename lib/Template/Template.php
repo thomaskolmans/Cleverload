@@ -19,10 +19,8 @@ class Template extends Router{
             $this->route = $input;
             $this->filepath = $input->getFile();
             $this->dom = $this->getDomFromFile($this->getFile());
-            $this->load();
         }else{
             $this->dom = $this->getDom($input);
-            $this->load();
         }
 
     }
@@ -110,6 +108,6 @@ class Template extends Router{
 
     public function load(){
         $templateloader = new TemplateLoader($this);
-        $templateloader->execute();
+        return $templateloader->execute();
     }
 }

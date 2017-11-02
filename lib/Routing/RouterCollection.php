@@ -5,15 +5,13 @@ class RouterCollection{
     
     public $routes = [];
 
-    public function __constructor(){
-
-    }
     public function add(Route $route){
         $this->routes[] = $route;
         return $route;
     }
     public function clear(){
-        return unset($this->routes);
+        unset($this->routes);
+        return $this;
     }
     public function getRoutes(){
         return $this->routes;
@@ -44,4 +42,3 @@ class RouterCollection{
     }
 }
 ?>
-

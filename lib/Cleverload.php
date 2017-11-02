@@ -12,6 +12,7 @@ class Cleverload{
 
     public $template = true;
     public $staticfilesdir = "./";
+    public $viewdir = "./";
 
     public $start_time;
     public $end_time;
@@ -22,7 +23,7 @@ class Cleverload{
         $this->start_time = microtime();
         $this->request = $request;
         $this->root = getcwd();
-        $this->sroot = $this->request->getRuest()["DOCUMENT_ROOT"];
+        $this->sroot = $this->request->getRequest()["DOCUMENT_ROOT"];
         self::$instance = $this;
         $this->request->setRouter(new Router($this->request));
     }
@@ -54,6 +55,13 @@ class Cleverload{
     }
     public function getTemplate(){
         return $this->template;
+    }
+    public function setViewDir($dir){
+        $this->viewdir = $dir;
+        return $this;
+    }
+    public function getViewDir(){
+        return $this->viewdir;
     }
     public function setStaticFilesDir($dir){
         $this->staticfilesdir = $dir;

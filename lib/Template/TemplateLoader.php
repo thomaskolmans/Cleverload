@@ -19,7 +19,7 @@ class TemplateLoader{
     public function execute(){
         $this->executePlugins();
         $this->executeTags();
-        $this->load();
+        return $this->load();
     }
     public function executePlugins(){
         if(in_array($this->template->getFileInfo()["extension"], $this->template->getAllowdExtensionsForPlugins())){
@@ -57,7 +57,7 @@ class TemplateLoader{
     }
     public function getDomContent(){
         $html = $this->dom->saveHTML();
-        return htmlspecialchars_decode($this->template->insertPHP($html).$this->loadForms()); 
+        return htmlspecialchars_decode($this->template->insertPHP($html)); 
     }
     public function executeFile($content){
         $tmp = tempnam(sys_get_temp_dir(), "contentfile");
@@ -68,7 +68,7 @@ class TemplateLoader{
         return $output;
     }
     public function load(){
-        return print($this->executeFile($this->getDomContent()));
+        return $this->executeFile($this->getDomContent());
     }
 
 }

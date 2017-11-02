@@ -42,7 +42,19 @@ class Route{
         $this->run();
         $this->router = $router;
         if(is_file(Cleverload::getInstance()->getStaticFilesDir().$this->uri)){
-            printf(file_get_contents($this->uri));
+            $extension = pathinfo($this->uri)["extension"];
+            $ctype = "text/html";
+            switch($extension){
+                case "zip": $ctype = "application/zip"; break;
+                case "jpeg":
+                case "jpg": $ctype = "image/jpg"; break;
+                case "png": $ctype = "image/png"; break;
+                case "css": $ctype = "text/css"; break;
+                case "js": $ctype = "text/javascript"; break;
+            }
+            header("Content-type: ".$ctype);
+            echo(file_get_contents(Cleverload::getInstance()->getStaticFilesDir().$this->uri));
+            exit;
         }
         $matchedroute = $this->getMatch($this->router);
         $matchedroute->load();
@@ -65,21 +77,28 @@ class Route{
         }
         return $this;
     }
-    public function closestMatch($routes){
+    public function getClosest($routes){
+        $previous = $routes;
+        if(count($routes) > 0){
+            return $this->getRouter()->response->notFound();
+        }
         for($i = 0; $i < $this->sectioncount; $i++){
-            $matches = [];
-            foreach($routes as $route){
+            $routes = $this->matchSectionToRoutes($i,$routes);
+            if(count($routes) == 1){
+                return $routes[0];
+            }else if(count($routes) < 1){
+                //sophisticate this to truly get the closest match in wording
+                $previous[0];
             }
+            $previous = $routes;
         }
     }
     public function getMatch(Router $router){
         $routes = $router->getRoutes();
         $found = false;
         for($i = 0; $i < $this->sectioncount; $i++){
-            $matches = [];
             if(!$found && count($routes) > 0){
-                $matches = $this->matchSectionToRoutes($i,$routes);
-                $routes = $matches;
+                $routes = $this->matchSectionToRoutes($i,$routes);
                 if(count($routes) == 1){
                     $found = true;
                 }
@@ -89,8 +108,12 @@ class Route{
             }
         }
         if(!$found){
-            if(false){
-
+            if($this->sectioncount < 1){
+                $this->router->getDefault();
+            }
+            if(count($routes) > 1){
+                //if multiple routes match, choose the best one of those matches
+                
             }
             return $this->getRouter()->response->notFound();
         }
@@ -100,7 +123,7 @@ class Route{
         $matches = [];
         foreach($routes as $route){
             if($this->equalsSection($i,$route)){
-                if(count($this->getWhere()) > 0 && $this->getSection($i)->isValue()){
+                    if(count($this->getWhere()) > 0 && $this->getSection($i)->isValue()){
                     if(!preg_match("/^".$route->getWhere()[$this->getSection($i)->clean()]."+$/",$this->getSection($i)->get())){
                         continue;
                     }
@@ -213,7 +236,7 @@ class Route{
     }
     public function loadFile(){
         if(Cleverload::getInstance()->template){
-            return $this->router->response->setBody(new Template($this));
+            return $this->router->response->setBody((new Template($this))->load());
         }
     }
     public function isValid(){
@@ -232,14 +255,14 @@ class Route{
         if(is_callable($action)){
             $this->action = $action;
         }else{
-            $this->file = Cleverload::getInstance()->root.$action;
+            $this->file = Cleverload::getInstance()->root."/".$action;
         }
     }
     public function getAction(){
         return $this->action;
     }
     public function getFile(){
-        return $this->action;
+        return $this->file;
     }
     public function getDomain(){
         return $this->domain;

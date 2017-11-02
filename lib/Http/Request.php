@@ -6,6 +6,7 @@ class Request{
     public $router;
     public $request;
 
+    public $uri;
     public $path;
     public $domain;
     public $method;
@@ -16,6 +17,7 @@ class Request{
     public function __construct($request){
         $this->request = $request;
         $this->document_root = $this->request["DOCUMENT_ROOT"];
+        $this->uri = $this->request["REQUEST_URI"];
         $this->path = str_replace($this->getDepth(), "", $this->request["REQUEST_URI"]);
         $this->domain = $this->request["SERVER_NAME"];
         $this->method = $this->request["REQUEST_METHOD"];
@@ -48,6 +50,9 @@ class Request{
     }
     public function getRequest(){
         return $this->request;
+    }
+    public function getUri(){
+        return $this->uri;
     }
 }
 

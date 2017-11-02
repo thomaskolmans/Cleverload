@@ -22,7 +22,7 @@ class Router{
         $this->response = new Response();
         $this->routes = new RouterCollection();
 
-        $this->route = new Route([$request->getMethod()],$request->getPath(),null);
+        $this->route = new Route([$request->getMethod()],$request->getUri(),null);
         $this->route->setDomain($this->request->getDomain());
     }
 
