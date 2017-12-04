@@ -5,9 +5,8 @@ use lib\Routing\Router;
 
 require_once("autoloader.php");
 
-
 $request = new Request($_SERVER);
 $cleverload = new Cleverload($request);
-$cleverload->setStaticFilesDir("./view/");
+$cleverload->setViewDir("./view/");
 $cleverload->getRequest()->getRouter()->getResponse();
 ?>

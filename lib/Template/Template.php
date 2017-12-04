@@ -17,7 +17,7 @@ class Template extends Router{
         libxml_use_internal_errors(true);
         if($input instanceof Route){
             $this->route = $input;
-            $this->filepath = $input->getFile();
+            $this->filepath = Cleverload::getInstance()->getViewDir()."/".$input->getFile();
             $this->dom = $this->getDomFromFile($this->getFile());
         }else{
             $this->dom = $this->getDom($input);

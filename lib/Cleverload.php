@@ -14,6 +14,8 @@ class Cleverload{
     public $staticfilesdir = "./";
     public $viewdir = "./";
 
+    public $caseSensitive = false;
+
     public $start_time;
     public $end_time;
 
@@ -69,6 +71,19 @@ class Cleverload{
     }
     public function getStaticFilesDir(){
         return $this->staticfilesdir;
+    }
+    public function setCaseSensitive($bool){
+        $this->caseSensitive = $bool;
+        return $this;
+    }
+    public function getCaseSensitive(){
+        return $this->caseSensitive;
+    }
+    public function forceHttps(){
+        if($_SERVER["HTTPS"] != "on"){
+            header("Location: https://" . $_SERVER["HTTP_HOST"] . $_SERVER["REQUEST_URI"]);
+            exit;
+        }
     }
     public function getRequest(){
         return $this->request;

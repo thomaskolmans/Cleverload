@@ -8,6 +8,9 @@ class Response{
     public $headers = [];
     public $body;
 
+    public function __construct(){
+        ob_start("ob_gzhandler");
+    }
     public static function redirect($path){
         return new Redirect();
     }
@@ -26,6 +29,10 @@ class Response{
     }
     public function setBody($string){
         $this->body = $string;
+    }
+    public function sendFile($file){
+        $this->setBody(readfile($file));
+        $this->send();
     }
     public function sendBody(){
         return printf($this->body);

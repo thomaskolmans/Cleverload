@@ -9,7 +9,7 @@ class Tinclude extends TemplateTag{
 
     public function execute($node){
         $filepath = trim($node->nodeValue);
-        $filepath = Cleverload::$filebase."/".$filepath;
+        $filepath = Cleverload::getInstance()->getViewDir()."/".$filepath;
         if(file_exists($filepath)){
             $contents = file_get_contents($filepath);
             $node->nodeValue = $contents;
