@@ -17,6 +17,7 @@ class Response{
     public function send(){
         $this->sendHeaders();
         $this->sendBody();
+        exit;
     }
     public function notFound(){
         return HttpError::notFound();
@@ -27,11 +28,14 @@ class Response{
     public function notPermitted(){
         return new HttpError(403);
     }
+    public function noRoutes(){
+        return new HttpError(999);
+    }
     public function setBody($string){
         $this->body = $string;
     }
     public function sendFile($file){
-        $this->setBody(readfile($file));
+        $this->setBody(file_get_contents($file));
         $this->send();
     }
     public function sendBody(){
