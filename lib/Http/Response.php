@@ -35,11 +35,10 @@ class Response{
         $this->body = $string;
     }
     public function sendFile($file){
-        $this->setBody(file_get_contents($file));
-        $this->send();
+        print(file_get_contents($file));
     }
     public function sendBody(){
-        return printf($this->body);
+        return print($this->body);
     }
     public function addHeader($header,$value){
         $this->headers[$header] = $value;

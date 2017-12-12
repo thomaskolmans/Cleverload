@@ -81,19 +81,24 @@ class Route{
     }
     public function getMatch(Router $router){
         $routes = $router->getRoutes();
+        if(count($routes) < 1){
+            $this->getRouter()->response->noRoutes();
+        }
         $found = false;
         $simelarities = false;
         for($i = 0; $i < $this->sectioncount; $i++){
             if(!$found && count($routes) > 0){
+                $previous = $routes;
                 $routes = $this->matchSectionToRoutes($i,$routes);
                 if(count($routes) == 1){
-                    if($this->validRest($i + 1,true)){
-                        $this->getRest($i+1,$routes[0],true);
-                    }else{
-                        $found = false;
-                        continue;
-                    }
-    
+                    if($this->hasRest($i)){
+                        if($this->validRest($i + 1,true)){
+                            $this->getRest($i+1,$routes[0],true);
+                        }else{
+                            $found = false;
+                            continue;
+                        }    
+                    }    
                     $found = true;
                     break;
                 }else if(count($routes) > 1 && $this->sectioncount == $i + 1){
@@ -104,18 +109,21 @@ class Route{
                             break;
                         }
                     }
+                }else if(count($routes) < 1){
+                    $routes = $previous;
                 }
                 continue;
             }
         }
         if(!$found){
-            if(count($routes) > 1){
+            if(count($routes) > 0){
                 $r = $this->getRouter()->getDefault();
                 if(!$r instanceof Route){
                     $this->getClosest($routes);
                 }
+                return $r;
             }else{
-                $this->getRouter()->response->noRoutes();
+                return $this->getRouter()->response->notFound();
             }
             return $this->getRouter()->getDefault();
         }
