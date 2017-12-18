@@ -49,9 +49,9 @@ $cleverload->getRequest()->getRouter()->getResponse();
 
 In the _routes_ folder, you can add files or use the existing _web.php_ file to add routes.
 
-##Routes
+## Routes
 
-We support _GET_,_POST_,PUT,_PATCH_,_DELETE_,_ALL_ request, you can route each like so
+We support _GET_, _POST_, _PUT_, _PATCH_, _DELETE_, _ALL_ request, you can route each like so
 
 ```php
 Route::get("/",function(){});
@@ -73,3 +73,8 @@ Then you can return a file from there in the routes like so:
 ```php
 Route::get("/","index.php");
 ```
+
+## Groups
+
+In your router, you can also group your request, by for instance prefixes, or namespaces, or domainnames. 
+
