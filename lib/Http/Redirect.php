@@ -6,9 +6,8 @@ use lib\Http\HttpError;
 
 class Redirect extends Request{
     
-    public function to(string $to){
-        $this->set("Location: ".$to);
-        $this->send();
+    public static function to(string $to){
+        header("Location: $to");exit;
     }
 
     public function back(){
@@ -17,7 +16,7 @@ class Redirect extends Request{
     public function forward(){
 
     }
-    public function error($errortype){
+    public static function error($errortype){
         $httperror = new HttpError();
         return $httperror->get($code);
     }

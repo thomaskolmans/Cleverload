@@ -22,7 +22,17 @@ _.htaccess_ from the folder you want Cleverload to handle the request.
 
 ```apacheconf
 RewriteEngine On
-RewriteRule ^((?!index\.php).+)$ ./index.php [NC,L,QSA]
+RewriteRule ^(.*)$ index.php [NC,L,QSA]
+
+Or when you use a view folder to load your files, you can also use this:
+
+```apacheconf
+RewriteEngine On
+RewriteCond %{DOCUMENT_ROOT}/view/%{REQUEST_URI} -f
+RewriteRule (.*) /view/$1 [R=301,L]
+
+RewriteRule ^ index.php [L]
+
 ```
 _index.php_ same folder as the _.htaccess_.
 ```php

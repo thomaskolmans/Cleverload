@@ -91,7 +91,7 @@ class Route{
                 $previous = $routes;
                 $routes = $this->matchSectionToRoutes($i,$routes);
                 if(count($routes) == 1){
-                    if($this->hasRest($i)){
+                    if($this->hasRest($routes[0]->sectioncount)){
                         if($this->validRest($i + 1,true)){
                             $this->getRest($i+1,$routes[0],true);
                         }else{
@@ -116,7 +116,21 @@ class Route{
             }
         }
         if(!$found){
-            if(count($routes) > 0){
+            if($this->sectioncount <= 1){
+                $matches = [];
+                foreach($routes as $route){
+                    if($this->uri == $route->uri){
+                        if($this->equalsRoute($this,$route)){
+                            $matches[] = $route;
+                        }else{
+                            continue;
+                        }
+                    }
+                }
+                if(count($matches) == 1){
+                    return $this->handleMatch($matches[0]);
+                }
+            }else if(count($routes) > 0){
                 $r = $this->getRouter()->getDefault();
                 if(!$r instanceof Route){
                     $this->getClosest($routes);
@@ -254,7 +268,7 @@ class Route{
     }
     private function equalsSection($i,$route){
         if($route->hasMethod($this->getMethods()[0])){
-            if($route->hasSection($i)){
+            if($route->hasSection($i) && $this->hasSection($i)){
                 if($this->getSection($i)->toString() === $route->getSection($i)->toString() || $this->getSection($i)->isValue()){
                     return true;
                 } 

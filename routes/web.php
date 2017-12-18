@@ -2,10 +2,6 @@
 use lib\Routing\Route;
 use lib\Cleverload;
 
-Route::get("/hey",function(){
-    echo "ey?";
-})->primary();
-Route::get("/bye",function(){
-    echo "bye?";
-});
+//Enter your routes here, you can add as many files with routes in this folder too.
+
 ?>
