@@ -12,7 +12,9 @@ class Tinclude extends TemplateTag{
         $filepath = Cleverload::getInstance()->getViewDir()."/".$filepath;
         if(file_exists($filepath)){
             $contents = file_get_contents($filepath);
-            $node->nodeValue = $contents;
+            $dom = new \DOMDocument();
+            $dom->loadHTML($contents);
+            $node->nodeValue = $dom->saveHTML();
         }
         return $node;
     }

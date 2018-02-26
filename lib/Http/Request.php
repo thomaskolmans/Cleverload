@@ -13,12 +13,14 @@ class Request{
     public $userip;
     public $serverip;
     public $time;
+    public $query;
 
     public function __construct($request){
         $this->request = $request;
         $this->document_root = $this->request["DOCUMENT_ROOT"];
-        $this->uri = $this->request["REQUEST_URI"];
-        $this->path = str_replace($this->getDepth(), "", $this->request["REQUEST_URI"]);
+        $this->query = $this->request["QUERY_STRING"];
+        $this->uri = str_replace("?".$this->query, "", $this->request["REQUEST_URI"]);
+        $this->path = str_replace($this->getDepth(), "", $this->uri);
         $this->domain = $this->request["SERVER_NAME"];
         $this->method = $this->request["REQUEST_METHOD"];
         $this->userip = $this->request["REMOTE_ADDR"];
@@ -55,6 +57,5 @@ class Request{
         return $this->uri;
     }
 }
-
 
 ?>

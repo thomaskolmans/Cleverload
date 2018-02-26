@@ -289,7 +289,7 @@ class Route{
         $this->run();
     }
     public function defractorGroupstack(){
-        for($i = 0; $i < count($this->groupstack); $i++){
+        for($i = count($this->groupstack) - 1; $i >= 0; $i--){
             foreach($this->groupstack[$i] as $grouptype => $value){
                 switch($grouptype){
                     case "namespace":
@@ -302,7 +302,7 @@ class Route{
                         $this->domain = $value;
                     break;
                 }
-            }  
+            }
         }
     }
     public function countSectionVariables(){
@@ -335,7 +335,10 @@ class Route{
             $section = $sections[$i];
             if($section->isValue()){
                 unset($match->parameters[$i]);
-                $match->parameters[$section->clean()] = $this->sections[$i]->clean();
+                if(array_key_exists($i, $this->sections)){
+                    $match->parameters[$section->clean()] = $this->sections[$i]->clean();
+                    $_GET[$section->clean()] = $this->sections[$i]->clean();   
+                }
             }
         }
     }
