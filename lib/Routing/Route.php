@@ -131,11 +131,11 @@ class Route{
                     return $this->handleMatch($matches[0]);
                 }
             }else if(count($routes) > 0){
-                $r = $this->getRouter()->getDefault();
-                if(!$r instanceof Route){
+                $default = $this->getRouter()->getDefault();
+                if($default == null){
                     $this->getClosest($routes);
                 }
-                return $r;
+                return $default;
             }else{
                 return $this->getRouter()->response->notFound();
             }
@@ -180,7 +180,7 @@ class Route{
     }
     public function getClosest($routes){
         $previous = $routes;
-        if(count($routes) < 1){
+        if($routes == null || count($routes) < 1){
             return $this->getRouter()->response->notFound();
         }
         if($this->sectioncount > 0){
@@ -219,8 +219,13 @@ class Route{
                     }
                     return $this->handleMatch($routes[0]);
                 }
+            }
+            if ($previous != null && count($previous) >= 1){
+                $routes = $previous;
+            } else {
                 return $this->getRouter()->response->notFound();
             }
+            var_dump($routes[0]);
             return $this->handleMatch($routes[0]);
         }else{
             $results = [];
@@ -269,7 +274,7 @@ class Route{
     private function equalsSection($i,$route){
         if($route->hasMethod($this->getMethods()[0])){
             if($route->hasSection($i) && $this->hasSection($i)){
-                if($this->getSection($i)->toString() === $route->getSection($i)->toString() || $this->getSection($i)->isValue()){
+                if($this->getSection($i)->toString() === $route->getSection($i)->toString() || $route->getSection($i)->isValue() || $this->getSection($i)->isValue()){
                     return true;
                 } 
             }

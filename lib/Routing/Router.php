@@ -70,7 +70,10 @@ class Router{
         return $this;
     }
     public function getDefault(){
-        return $this->route->getClosest($this->defaults);
+        if ($this->defaults != null && count($this->defaults) > 0){
+            return $this->route->getClosest($this->defaults);
+        } 
+        return null;
     }
     public function addToGroupstack($arguments){
         if(!empty($arguments)){

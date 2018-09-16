@@ -19,7 +19,7 @@ class Request{
         $this->request = $request;
         $this->document_root = $this->request["DOCUMENT_ROOT"];
         $this->query = $this->request["QUERY_STRING"];
-        $this->uri = str_replace("?".$this->query, "", $this->request["REQUEST_URI"]);
+        $this->uri = preg_replace('/\?.*/', '', $this->request["REQUEST_URI"]);
         $this->path = str_replace($this->getDepth(), "", $this->uri);
         $this->domain = $this->request["SERVER_NAME"];
         $this->method = $this->request["REQUEST_METHOD"];
@@ -57,5 +57,6 @@ class Request{
         return $this->uri;
     }
 }
+
 
 ?>
