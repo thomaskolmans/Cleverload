@@ -29,15 +29,18 @@ class Cleverload{
         self::$instance = $this;
         $this->request->setRouter(new Router($this->request));
     }
+
     public static function getInstance(){
         if(isset(self::$instance)){
             return self::$instance;
         }
         return null;
     }
+
     public static function getPages(){
         return include(__DIR__."/../pages.php");
     }
+
     public static function getConfig($item, $key = false){
         $config = include(__DIR__."/../config.php");  
         foreach($config as $keys => $value){
@@ -49,6 +52,15 @@ class Cleverload{
             }
         }
     }
+
+    public function cors(){
+        header("Access-Control-Allow-Origin: *");
+        header("Access-Control-Allow-Credentials: true");
+        header("Access-Control-Max-Age: 1000");
+        header("Access-Control-Allow-Headers: X-Requested-With, Content-Type, Origin, Cache-Control, Pragma, Authorization, Accept, Accept-Encoding");
+        header("Access-Control-Allow-Methods: PUT, POST, GET, OPTIONS, DELETE");
+    }
+
     public function getExcecutiontime(){
         return  $this->end_time - $this->start_time;
     }
