@@ -53,12 +53,22 @@ class Cleverload{
         }
     }
 
-    public function cors(){
-        header("Access-Control-Allow-Origin: *");
+    public function cors($origins = [], $headers = [], $methods = []){
+        if (empty($origins)){
+            $origins = ["*"];
+        }
+        if (empty($headers)){
+            $origins = ["X-Requested-With", "Content-Type", "Origin", "Cache-Control", "Pragma", "Authorization", "Accept", "Accept-Encoding"];
+        }
+        if (empty($methods)){
+            $methods = ["PUT", "POST", "GET", "OPTIONS", "DELETE"];
+        }
+
+        header("Access-Control-Allow-Origin: ".implode(", ", $origins));
         header("Access-Control-Allow-Credentials: true");
         header("Access-Control-Max-Age: 1000");
-        header("Access-Control-Allow-Headers: X-Requested-With, Content-Type, Origin, Cache-Control, Pragma, Authorization, Accept, Accept-Encoding");
-        header("Access-Control-Allow-Methods: PUT, POST, GET, OPTIONS, DELETE");
+        header("Access-Control-Allow-Headers: ".implode(", ", $headers));
+        header("Access-Control-Allow-Methods: ".implode(", ", $methods));
     }
 
     public function getExcecutiontime(){
