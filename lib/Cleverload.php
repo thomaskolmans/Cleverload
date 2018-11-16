@@ -58,7 +58,7 @@ class Cleverload{
             $origins = ["*"];
         }
         if (empty($headers)){
-            $origins = ["X-Requested-With", "Content-Type", "Origin", "Cache-Control", "Pragma", "Authorization", "Accept", "Accept-Encoding"];
+            $headers = ["X-Requested-With", "Content-Type", "Origin", "Cache-Control", "Pragma", "Authorization", "Accept", "Accept-Encoding"];
         }
         if (empty($methods)){
             $methods = ["PUT", "POST", "GET", "OPTIONS", "DELETE"];
