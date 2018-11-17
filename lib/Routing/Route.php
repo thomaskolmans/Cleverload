@@ -56,8 +56,11 @@ class Route{
             }
             header("Content-type: ".$ctype);
             $this->getRouter()->response->sendFile(Cleverload::getInstance()->getStaticFilesDir().$this->uri);
-        }else{
+        } else {
             $matchedroute = $this->getMatch($this->getRouter());
+            if ($matchedroute == null) {
+                $matchedroute = $this->getRouter()->response->notFound();
+            }
             $matchedroute->load();
             $this->getRouter()->routes->clear();
             $this->getRouter()->response->send();      
@@ -225,7 +228,6 @@ class Route{
             } else {
                 return $this->getRouter()->response->notFound();
             }
-            var_dump($routes[0]);
             return $this->handleMatch($routes[0]);
         }else{
             $results = [];
