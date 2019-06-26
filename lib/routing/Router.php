@@ -96,17 +96,13 @@ class Router{
     }
 
     private function addToGroupstack($arguments, callable $action){
-        if(!empty($arguments)){
-            $this->groupstack[] = new Group($arguments, $action);
-        }
+        $this->groupstack[] = new Group($arguments, $action);
     }
 
     private function addToMiddlewareStack($arguments, callable $before, callable $action){
-        if(!empty($arguments)){
-            $middleware = new Middleware($arguments, $action);
-            $middleware->setBefore($before);
-            $this->middlewarestack[] = $middleware;
-        }
+        $middleware = new Middleware($arguments, $action);
+        $middleware->setBefore($before);
+        $this->middlewarestack[] = $middleware;
     }
 
     public function getRoutes(){

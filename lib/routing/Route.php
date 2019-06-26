@@ -237,7 +237,6 @@ class Route{
                             continue;
                         }   
                     }
-                    
                     return $this->handleMatch($routes[0]);
                 }
             }
@@ -246,7 +245,6 @@ class Route{
             } else {
                 return $this->getRouter()->response->notFound();
             }
-
             return $this->handleMatch($routes[0]);
 
         } else {
