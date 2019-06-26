@@ -1,7 +1,10 @@
 <?php
-namespace lib\Exception;
+namespace lib\exception;
 
-abstract class CleverloadException extends \Exception implements IException{
+use \Exception;
+use \ReflectionClass;
+
+abstract class CleverloadException extends Exception implements IException {
 
     protected $message = 'Unknown exception';  
     private   $string;                            
@@ -17,7 +20,11 @@ abstract class CleverloadException extends \Exception implements IException{
         parent::__construct($message, $code);
     }
 
+    private function getClassname() {
+        return (new ReflectionClass($this))->getShortName();
+    }
+
     public function __toString(){
-        return get_class($this) . " '{$this->message}' ";
+        return "". $this->getClassname().": {$this->message} ";
     }
 }

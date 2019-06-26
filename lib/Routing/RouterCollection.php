@@ -1,5 +1,5 @@
 <?php
-namespace lib\Routing;
+namespace lib\routing;
 
 class RouterCollection{
     
@@ -9,13 +9,16 @@ class RouterCollection{
         $this->routes[] = $route;
         return $route;
     }
+    
     public function clear(){
         unset($this->routes);
         return $this;
     }
+
     public function getRoutes(){
         return $this->routes;
     }
+
     private function getRoutesFromConfig(){
         $routes = Cleverload::getPages();
         foreach($routes as $uri => $file){

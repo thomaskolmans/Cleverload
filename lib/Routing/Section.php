@@ -1,7 +1,7 @@
 <?php
-namespace lib\Routing;
+namespace lib\routing;
 
-class Section{
+class Section {
     
     public $section;
     public $type;
@@ -10,6 +10,7 @@ class Section{
         $this->section = $this->trimSlash($section);
         $this->type = $type;
     }
+
     public function isValue(){
         $pathar = str_split($this->section);
         if($pathar[0] == "{" && end($pathar) == "}"){
@@ -18,15 +19,19 @@ class Section{
             return false;
         }
     }
+
     public function clean(){
         return $this->trimSlash(str_replace(array("{","}"), "", $this->section));
     }
+
     public function get(){
         return $this->section;
     }
+
     public function toString(){
         return $this->section;
     }
+    
     public function trimSlash($string){
         return ltrim($string,'/');
     }

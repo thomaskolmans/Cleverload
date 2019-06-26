@@ -4,7 +4,7 @@ namespace lib;
 use lib\Http\Request;
 use lib\Routing\Router;
 
-class Cleverload{
+class Cleverload {
 
     public $request;
     public $root;
@@ -27,6 +27,7 @@ class Cleverload{
         $this->root = getcwd();
         $this->sroot = $this->request->getRequest()["DOCUMENT_ROOT"];
         self::$instance = $this;
+        
         $this->request->setRouter(new Router($this->request));
     }
 

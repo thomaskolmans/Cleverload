@@ -1,9 +1,9 @@
 <?php
 
-namespace lib\Template;
+namespace lib\template;
 
 use lib\Cleverload;
-use lib\Exception\UnexpectedPlugin;
+use lib\exception\UnexpectedPlugin;
 
 class TemplateLoader{
 

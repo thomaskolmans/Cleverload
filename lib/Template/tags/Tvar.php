@@ -1,14 +1,13 @@
 <?php
 
-namespace lib\Template\tags;
+namespace lib\template\tags;
 
-use lib\Template\TemplateTag;
+use lib\template\TemplateTag;
 
 class Tvar extends TemplateTag{
 
     public function execute($node){
         $variable = $node->nodeValue;
-        
     }
 }  
 ?>

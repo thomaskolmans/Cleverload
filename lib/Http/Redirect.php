@@ -1,8 +1,8 @@
 <?php
-namespace lib\Http;
+namespace lib\http;
 
-use lib\Http\Request;
-use lib\Http\HttpError;
+use lib\http\Request;
+use lib\http\HttpError;
 
 class Redirect extends Request{
     
@@ -13,9 +13,11 @@ class Redirect extends Request{
     public function back(){
 
     }
+
     public function forward(){
 
     }
+    
     public static function error($errortype){
         $httperror = new HttpError();
         return $httperror->get($code);

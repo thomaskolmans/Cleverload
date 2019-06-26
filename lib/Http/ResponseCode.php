@@ -1,9 +1,9 @@
 <?php
-namespace lib\Http;
+namespace lib\http;
 
-class ResponseCode{
+class ResponseCode {
     
-    $codes = array(
+    CONST codes = array(
         100 => 'Informational: Continue',
         101 => 'Informational: Switching Protocols',
         102 => 'Informational: Processing',

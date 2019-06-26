@@ -1,5 +1,5 @@
 <?php
-namespace lib\Exception;
+namespace lib\exception;
 
 class UnexpectedPlugin extends CleverloadException{
 

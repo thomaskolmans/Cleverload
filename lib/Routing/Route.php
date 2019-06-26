@@ -1,7 +1,8 @@
 <?php
-namespace lib\Routing;
+namespace lib\routing;
 
-use lib\Template\Template;
+use lib\exception\InvalidArgument;
+use lib\template\Template;
 use lib\Cleverload;
 use Exception;
 
@@ -12,7 +13,8 @@ class Route{
     public $uri;
     public $domain;
 
-    public $groupstack;
+    public $groupstack = null;
+    public $middlewarestack = null;
 
     private $file = null;
     private $action = null;
@@ -27,24 +29,23 @@ class Route{
     protected $sectioncount;
 
     public function __construct($methods,$uri,$action){
-        if(Cleverload::getInstance()->getCaseSensitive()){
-           $this->uri = $uri;
-       }else{
-            $this->uri = strtolower($uri);
-       }
+        $this->uri = Cleverload::getInstance()->getCaseSensitive() ? $uri : strtolower($uri);
 
         $this->setAction($action);
         $this->methods = $methods;
     }
+
     public function run(){
         $this->sections = $this->setSections();
         $this->sectioncount = $this->setSectionCount();
         $this->setParameters();
     }
+    
     public function getResponse(){
         if(is_file(Cleverload::getInstance()->getStaticFilesDir().$this->uri)){
             $extension = pathinfo($this->uri)["extension"];
             $ctype = "text/html";
+
             switch($extension){
                 case "zip": $ctype = "application/zip"; break;
                 case "jpeg":
@@ -54,6 +55,7 @@ class Route{
                 case "js": $ctype = "text/javascript"; break;
                 case "svg": $ctype = "image/svg+xml"; break;
             }
+
             header("Content-type: ".$ctype);
             $this->getRouter()->response->sendFile(Cleverload::getInstance()->getStaticFilesDir().$this->uri);
         } else {
@@ -66,22 +68,26 @@ class Route{
             $this->getRouter()->response->send();      
         }
     }
-    public function where($variable,$regex){
+
+    public function where($variable, $regex){
         $this->wheres[$variable] = $regex;
         return $this;
     }
+
     public function when($boolean){
         $this->when = $boolean;
         return $this;
     }
+
     public function primary(){
-        if(count($this->getParameters()) < 1){
+        if(count($this->getParameters()) < 1) {
             $this->getRouter()->addDefault($this);
-        }else{
+        } else {
             throw new \Exception("You can't set the default to a path with a variable");
         }
         return $this;
     }
+    
     public function getMatch(Router $router){
         $routes = $router->getRoutes();
         if(count($routes) < 1){
@@ -92,32 +98,33 @@ class Route{
         for($i = 0; $i < $this->sectioncount; $i++){
             if(!$found && count($routes) > 0){
                 $previous = $routes;
-                $routes = $this->matchSectionToRoutes($i,$routes);
-                if(count($routes) == 1){
+                $routes = $this->matchSectionToRoutes($i, $routes);
+                if(count($routes) == 1 && $routes[0]->sectioncount == $i + 1){
                     if($this->hasRest($routes[0]->sectioncount)){
-                        if($this->validRest($i + 1,true)){
-                            $this->getRest($i+1,$routes[0],true);
-                        }else{
+                        if($this->validRest($i + 1, true)){
+                            $this->getRest($i + 1, $routes[0], true);
+                        } else{ 
                             $found = false;
                             continue;
                         }    
                     }    
                     $found = true;
                     break;
-                }else if(count($routes) > 1 && $this->sectioncount == $i + 1){
+                } else if(count($routes) > 1 && $this->sectioncount == $i + 1) {
                     foreach($routes as $route){
-                        if($route->sectioncount === $this->sectioncount){
+                        if ($route->sectioncount === $this->sectioncount ){
                             $routes = [$route];
                             $found = true;
                             break;
                         }
                     }
-                }else if(count($routes) < 1){
+                } else if (count($routes) < 1){
                     $routes = $previous;
                 }
                 continue;
             }
         }
+        
         if(!$found){
             if($this->sectioncount <= 1){
                 $matches = [];
@@ -133,19 +140,22 @@ class Route{
                 if(count($matches) == 1){
                     return $this->handleMatch($matches[0]);
                 }
-            }else if(count($routes) > 0){
+            } else if(count($routes) > 0) {
                 $default = $this->getRouter()->getDefault();
+
                 if($default == null){
                     $this->getClosest($routes);
                 }
                 return $default;
-            }else{
+            } else {
                 return $this->getRouter()->response->notFound();
             }
             return $this->getRouter()->getDefault();
         }
+        
         return $this->handleMatch($routes[0]);
     }
+
     public function getRest($i,$route,$ignore_zero = false){
         if($this->validRest($i,$ignore_zero)){
             for($j = $i + 1; $j < $this->sectioncount; $j += 2){
@@ -157,44 +167,48 @@ class Route{
         }
         return false;
     }
+    
     public function validRest($i,$ignore_zero = false){
         if($this->hasRest($i)){
             if(!$ignore_zero){
                 if($i === 0){
                     $rest = $this->sectioncount;
-                }else{
+                } else {
                     $rest = $this->sectioncount - ($i + 1);
                 }   
-            }else{
+            } else {
                 $rest = $this->sectioncount - $i;
             }
+            return $rest % 2 == 0 && $rest > 0;
+        }
+        return false;
+    }
 
-            if($rest % 2 == 0 && $rest > 0){
-                return true;
-            }  
-        }
-        return false;
-    }
     public function hasRest($i){
-        if($this->sectioncount > ($i + 1)){
-            return true;
-        }
-        return false;
+        return $this->sectioncount > ($i + 1);
     }
+
     public function getClosest($routes){
+        $isEnabled = Cleverload::getInstance()->getConfig("find_closest");
+        if($isEnabled) $this->getRouter()->response->notFound();
+
         $previous = $routes;
         if($routes == null || count($routes) < 1){
             return $this->getRouter()->response->notFound();
         }
+
         if($this->sectioncount > 0){
             $simelarities = false;
             for($i = 0; $i < $this->sectioncount; $i++){
                 $routes = $this->matchSectionToRoutes($i,$routes);
+
                 if(count($routes) > 0){
                     $simelarities = true;
                     $previous = $routes;
                 }
-                if(!$simelarities && $this->validRest($i)){
+
+                if(!$simelarities && $this->validRest($i)) {
+
                     $results = [];
                     foreach($previous as $route){
                         if($this->equalsRoute($this,$route)){
@@ -203,23 +217,27 @@ class Route{
                             }
                         }
                     }
+
                     if(count($results) > 0){
                         $this->getRest($i,$results[0]);
                         return $this->handleMatch($results[0]);
                     }
                 }
-                if(!$simelarities && count($routes) < 1){
+
+                if(!$simelarities && count($routes) < 1) {
                     $this->getRouter()->response->notFound();
                 }
-                if(count($routes) == 1){
+
+                if(count($routes) == 1) {
                     if($this->hasRest($i)){
                         $this->getRest($i,$routes[0]);   
-                        if($this->validRest($i)){
+                        if($this->validRest($i)) {
                             $this->getRest($i,$routes[0]);
-                        }else{
+                        } else {
                             continue;
                         }   
                     }
+                    
                     return $this->handleMatch($routes[0]);
                 }
             }
@@ -228,8 +246,10 @@ class Route{
             } else {
                 return $this->getRouter()->response->notFound();
             }
+
             return $this->handleMatch($routes[0]);
-        }else{
+
+        } else {
             $results = [];
             foreach($routes as $route){
                 if($this->equalsRoute($this,$route)){
@@ -238,14 +258,15 @@ class Route{
                     }
                 }
             }
+            
             if(count($results) > 0){
                 return $this->handleMatch($results[0]);
-            }else{
+            } else {
                 return $this->getRouter()->response->notFound();
             }
         }
-
     }
+
     private function matchSectionToRoutes($i,$routes){
         $matches = [];
         foreach($routes as $route){
@@ -259,6 +280,7 @@ class Route{
         }
         return $matches;
     }
+
     private function equalsRoute($route1,$route2){
         if(count($route1->getWhere()) > 0 && count($route1->getParameters()) > 0){
             for($i = 0; $i < count($route1->sectioncount); $i++){
@@ -267,37 +289,55 @@ class Route{
                 }
             }
         }
+
         if(!$route2->getIf()) return false;
+
         if($route2->getDomain() != null){
             if($route2->getDomain() !== $route1->getDomain()) return false;
         }
         return true;
     }
-    private function equalsSection($i,$route){
+
+    private function equalsSection($i, $route){
         if($route->hasMethod($this->getMethods()[0])){
             if($route->hasSection($i) && $this->hasSection($i)){
-                if($this->getSection($i)->toString() === $route->getSection($i)->toString() || $route->getSection($i)->isValue() || $this->getSection($i)->isValue()){
+                if($this->getSection($i)->toString() === $route->getSection($i)->toString() 
+                    || $route->getSection($i)->isValue() 
+                    || $this->getSection($i)->isValue()){
                     return true;
                 } 
             }
         }
         return false;
     }
+
     private function handleMatch($match){
+        for($i = count($match->middlewarestack) - 1; $i >= 0; $i--){
+            $match->middlewarestack[$i]->getBefore()($this);
+        }
         $this->matchParameters($match);
         return $match;
     }
+
     private function bindVariable($key,$value){
         $_GET[$key] = $value;
     }
+
     public function setGroupstack($groupstack){
         $this->groupstack = $groupstack;
         $this->defractorGroupstack();
         $this->run();
     }
-    public function defractorGroupstack(){
+
+    public function setMiddlewarestack($middlewarestack) {
+        $this->middlewarestack = $middlewarestack;
+        $this->defractorMiddlewarestack();
+        $this->run();
+    }
+
+    private function defractorGroupstack(){
         for($i = count($this->groupstack) - 1; $i >= 0; $i--){
-            foreach($this->groupstack[$i] as $grouptype => $value){
+            foreach($this->groupstack[$i]->getArguments() as $grouptype => $value){
                 switch($grouptype){
                     case "namespace":
                         $this->uri = $value.$this->uri;
@@ -308,10 +348,35 @@ class Route{
                     case "domain":
                         $this->domain = $value;
                     break;
+                    default: 
+                        throw new InvalidArgument("invalid argument used in function `group`, use any of: 'namespace', 'prefix' or 'domain");
+                    break;
                 }
             }
         }
     }
+
+    private function defractorMiddlewarestack(){
+        for($i = count($this->middlewarestack) - 1; $i >= 0; $i--){
+            foreach($this->middlewarestack[$i]->getArguments() as $grouptype => $value){
+                switch($grouptype){
+                    case "namespace":
+                        $this->uri = $value.$this->uri;
+                    break;
+                    case "prefix":
+                        $this->uri = $value.$this->uri;
+                    break;
+                    case "domain":
+                        $this->domain = $value;
+                    break;
+                    default: 
+                        throw new InvalidArgument("invalid argument used in function `middleware`, use any of: 'namespace', 'prefix' or 'domain");
+                    break;
+                }
+            }
+        }
+    }
+
     public function countSectionVariables(){
         $count = 0;
         foreach($this->getSections() as $section){
@@ -321,12 +386,15 @@ class Route{
         }
         return $count;
     }
+
     public function setSectionCount(){
         return count($this->getSections());
     }
+
     public function setSections(){
         return $this->explodeIntoSections("/",$this->uri,"uri");
     }
+
     public static function explodeIntoSections($divider,$string,$type){
         $arr = [];
         foreach(array_filter(array_values(explode($divider,$string))) as $section){ 
@@ -336,6 +404,7 @@ class Route{
         }
         return $arr;
     }
+
     public function matchParameters($match){
         $sections = $match->getSections();
         for($i = 0; $i < count($sections); $i++){
@@ -349,10 +418,12 @@ class Route{
             }
         }
     }
+
     public function addParameter($parameter){
         $this->parameters[] = $parameter;
         return $this;
     }
+
     public function addParameters($parameters){
         $this->parameters = [];
         foreach($parameters as $key => $value){
@@ -360,6 +431,7 @@ class Route{
         }
         return $this;
     }
+
     public function setParameters(){
         for($i = 0; $i < count($this->sections); $i++){
             $section = $this->getSection($i);
@@ -369,12 +441,14 @@ class Route{
         }
         return $this;
     }
+
     public function setParametersAsGet(){
         foreach($this->parameters as $key => $value){
             $_GET[$key] = $value;
         }
         return $_GET;
     }
+
     public function load(){
         if(is_callable($this->action)){
             return $this->callFunction($this->action,$this->getParameters());   
@@ -386,78 +460,91 @@ class Route{
         return $func(...array_values($values));
     }
     public function loadFile(){
-        if(Cleverload::getInstance()->template){
+        if(Cleverload::getInstance()->template) {
             return $this->getRouter()->response->setBody((new Template($this))->load());
         }
     }
+
     public function isValid(){
-        if(preg_match("/[a-zA-Z\/}{]*/", $path)){
-            return true;
-        }
-        return false;
+        return preg_match("/[a-zA-Z\/}{]*/", $path);
     }
+
     public function getURI(){
         return $this->URI;
     }
+    
     public function getSectionCount(){
         return $this->sectioncount;
     }
+
     public function setAction($action){
-        if(is_callable($action)){
+        if(is_callable($action)) {
             $this->action = $action;
-        }else{
+        } else {
             $this->file = $action;
         }
     }
+
     public function getAction(){
         return $this->action;
     }
+
     public function getFile(){
         return $this->file;
     }
+
     public function getDomain(){
         return $this->domain;
     }
+
     public function setDomain($domain){
         $this->domain = $domain;
         return $this;
     }
+
     public function getSection($number){
-        if($this->hasSection($number)){
+        if($this->hasSection($number)) {
             return $this->getSections()[$number];
         }
         return null;
     }
+
     public function getSections(){
         return $this->sections;
     }
+
     public function hasSection($i){
         return array_key_exists($i, $this->sections);
     }
+
     public function hasMethod($method){
-        if(in_array($method, $this->getMethods())){
-            return true;
-        }
-        return false;
+        return in_array($method, $this->getMethods());
     }
+
     public function getRouter(){
         return Cleverload::getInstance()->request->router;
     }
+
     public function getParameters(){
         return $this->parameters;
     }
+
     public function getMethods(){
         return $this->methods;
     }
+
     public function getWhere(){
         return $this->wheres;
     }
+
     public function getIf(){
         return $this->when;
     }
+
     public function __call($function,$args){
         return Cleverload::getInstance()->request->router->call($function,$args);
     }
+
     public static function __callStatic($function,$args){
         return Cleverload::getInstance()->request->router->call($function,$args);
     }

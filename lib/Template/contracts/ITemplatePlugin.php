@@ -1,5 +1,5 @@
 <?php
-namespace lib\Template\contracts;
+namespace lib\template\contracts;
 
 interface ITemplatePlugin{
     

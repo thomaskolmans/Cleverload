@@ -1,9 +1,9 @@
 <?php
 
-namespace lib\Template;
+namespace lib\template;
 
-use lib\Template\Template;
-use lib\Template\contracts\ITemplateTag;
+use lib\template\Template;
+use lib\template\contracts\ITemplateTag;
 
 abstract class TemplateTag extends Template implements ITemplateTag{
 
@@ -17,6 +17,7 @@ abstract class TemplateTag extends Template implements ITemplateTag{
         $this->setTag(get_called_class());
         $this->find();
     }
+    
     public function find(){
         $tags = $this->dom->getElementsByTagName($this->tag);
         $this->taglist = $tags;
@@ -27,12 +28,14 @@ abstract class TemplateTag extends Template implements ITemplateTag{
         }
         $this->dom->saveHTML();
     }
+
     public function setTag($tag){
         $tags = explode("\\",$tag);
         $tag = end($tags);
         $this->tag = substr($tag,1);
         return $this;
     }
+
     public function getTag(){
         return $this->tag;
     }

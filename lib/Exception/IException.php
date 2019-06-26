@@ -1,7 +1,7 @@
 <?php
-namespace lib\Exception;
+namespace lib\exception;
 
-interface IException{
+interface IException {
     public function getMessage();
     public function getCode();
     public function getFile();

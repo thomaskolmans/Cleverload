@@ -1,8 +1,8 @@
 <?php
 
-namespace lib\Template\tags;
+namespace lib\template\tags;
 
-use lib\Template\TemplateTag;
+use lib\template\TemplateTag;
 use lib\Cleverload;
 
 class Tinclude extends TemplateTag{

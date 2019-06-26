@@ -1,5 +1,5 @@
 <?php
-namespace lib\Template;
+namespace lib\template;
 
 use lib\Routing\Router;
 use lib\Routing\Route;

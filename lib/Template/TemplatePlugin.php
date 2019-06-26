@@ -1,8 +1,8 @@
 <?php
-namespace lib\Template;
+namespace lib\template;
 
-use lib\Template\plugins\PluginCollection;
-use lib\Template\contracts\ITemplatePlugin;
+use lib\template\plugins\PluginCollection;
+use lib\template\contracts\ITemplatePlugin;
 
 abstract class TemplatePlugin extends PluginCollection implements ITemplatePlugin{
     

@@ -1,7 +1,7 @@
 <?php
-namespace lib\Template\plugins;
+namespace lib\template\plugins;
 
-use lib\Template\TemplatePlugin;
+use lib\template\TemplatePlugin;
 
 class TPlugin_foreach extends TemplatePlugin{
 

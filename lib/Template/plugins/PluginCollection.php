@@ -1,5 +1,5 @@
 <?php
-namespace lib\Template\plugins;
+namespace lib\template\plugins;
 
 class PluginCollection{
     

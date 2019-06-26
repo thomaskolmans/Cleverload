@@ -1,6 +1,6 @@
 <?php
-namespace lib\Exception;
+namespace lib\exception;
 
-class InvalidArgument extends CleverloadException{
+class InvalidArgument extends CleverloadException {
     
 }
