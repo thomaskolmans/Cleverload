@@ -17,5 +17,8 @@
     ],
     "require": {
         "php": ">=5.3,<8.0-DEV"
+    },
+    "archive": {
+        "exclude": [".git/*", "/docs/*"]
     }
 }
