@@ -1,8 +1,8 @@
 <?php
 namespace lib;
 
-use lib\Http\Request;
-use lib\Routing\Router;
+use lib\http\Request;
+use lib\routing\Router;
 
 class Cleverload {
 

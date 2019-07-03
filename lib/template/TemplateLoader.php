@@ -37,7 +37,7 @@ class TemplateLoader{
         unset($tags[0]);unset($tags[1]);
         foreach($tags as $tag){
             $file = pathinfo($tag);
-            $class = "lib\Template\\tags\\".$file["filename"];
+            $class = "lib\\template\\tags\\".$file["filename"];
             new $class($this->dom);
         }
     }
@@ -46,7 +46,7 @@ class TemplateLoader{
         foreach($plugins[0] as $plugin){
             $parts = explode(" ",$plugin);
             $compile = $parts[0];
-            $class = "lib\Template\\plugins\\TPlugin_".$compile;
+            $class = "lib\\template\\plugins\\TPlugin_".$compile;
             if(class_exists($class)){
                 new $class($content,$plugin);
             }else{
