@@ -70,6 +70,11 @@ class Cleverload {
         header("Access-Control-Max-Age: 1000");
         header("Access-Control-Allow-Headers: ".implode(", ", $headers));
         header("Access-Control-Allow-Methods: ".implode(", ", $methods));
+
+        //preflight
+        if($this->request->getMethod() === "OPTIONS"){
+            exit;
+        }
     }
 
     public function getExcecutiontime(){
