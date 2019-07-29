@@ -13,9 +13,9 @@ class Router {
 
     public $route;
     public $routes;
-    public $statusRoutes;
+    public $statusRoutes = [];
 
-    public $defaults;
+    public $defaults = [];
 
     public $groupstack = [];
     public $middlewarestack = [];
