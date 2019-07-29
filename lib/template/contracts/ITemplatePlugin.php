@@ -1,7 +1,7 @@
 <?php
 namespace lib\template\contracts;
 
-interface ITemplatePlugin{
+interface ITemplatePlugin {
     
 }
 ?>

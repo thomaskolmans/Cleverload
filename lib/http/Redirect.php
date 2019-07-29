@@ -20,7 +20,7 @@ class Redirect extends Request{
     
     public static function error($errortype){
         $httperror = new HttpError();
-        return $httperror->get($code);
+        return $httperror->getResonse();
     }
 }
 

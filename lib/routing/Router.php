@@ -6,13 +6,15 @@ use lib\http\Redirect;
 use lib\http\Request;
 use lib\http\Response;
 
-class Router{
+class Router {
     
     private $request;
     public $response;
 
     public $route;
     public $routes;
+    public $statusRoutes;
+
     public $defaults;
 
     public $groupstack = [];
@@ -93,6 +95,11 @@ class Router{
             return $this->route->getClosest($this->defaults);
         } 
         return null;
+    }
+
+    public function addStatusRoute(Route $route, $statusCode = 404) {
+        $this->statusRoutes[$statusCode] = $route;
+        return $this;
     }
 
     private function addToGroupstack($arguments, callable $action){

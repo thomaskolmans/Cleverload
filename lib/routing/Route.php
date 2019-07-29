@@ -6,7 +6,7 @@ use lib\template\Template;
 use lib\Cleverload;
 use Exception;
 
-class Route{
+class Route {
 
     private $router;
 
@@ -88,8 +88,8 @@ class Route{
         return $this;
     }
 
-    public function addStatusPage() {
-        $this->getRouter()->addDefault($this);
+    public function statusPage($status = 404) {
+        $this->getRouter()->addStatusRoute($this, $status);
         return $this;
     }
     

@@ -1,7 +1,7 @@
 <?php
 namespace lib\routing;
 
-class RouterCollection{
+class RouterCollection {
     
     public $routes = [];
 

@@ -21,19 +21,23 @@ class Response {
     }
 
     public function notFound(){
-        return HttpError::notFound();
+        $error = new HttpError(404);
+        return $error->getResponse();
     }
 
     public function notAuthorized(){
-        return new HttpError(401);
+        $error = new HttpError(401);
+        return $error->getResponse();    
     }
 
     public function notPermitted(){
-        return new HttpError(403);
+        $error = new HttpError(403);
+        return $error->getResponse();
     }
 
     public function noRoutes(){
-        return new HttpError(999);
+        $error = new HttpError(999);
+        return $error->getResponse();
     }
 
     public function setBody($string){
