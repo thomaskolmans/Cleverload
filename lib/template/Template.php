@@ -9,7 +9,7 @@ class Template extends Router{
     
     public $route = null;
     public $filepath = "";
-    public $dom;
+    public $dom = null;
 
     public static $php = [];
 
@@ -18,7 +18,10 @@ class Template extends Router{
         if($input instanceof Route){
             $this->route = $input;
             $this->filepath = Cleverload::getInstance()->getViewDir()."/".$input->getFile();
-            $this->dom = $this->getDomFromFile($this->getFile());
+            $file = $this->getFile();
+            if ($file != null){
+                $this->dom = $this->getDomFromFile($file);
+            }
         } else {
             $this->dom = $this->getDom($input);
         }
@@ -33,7 +36,7 @@ class Template extends Router{
         if(file_exists($this->filepath)){
             return $this->filepath;
         }
-        return $this->route->getRouter()->response->notfound();
+        return null;
     }
 
     public function getFileInfo(){
@@ -120,7 +123,9 @@ class Template extends Router{
     }
 
     public function load(){
-        $templateloader = new TemplateLoader($this);
-        return $templateloader->execute();
+        if ($this->dom != null && !empty($this->dom)) {
+            $templateloader = new TemplateLoader($this);
+            return $templateloader->execute();
+        }
     }
 }

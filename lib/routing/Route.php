@@ -87,6 +87,11 @@ class Route{
         }
         return $this;
     }
+
+    public function addStatusPage() {
+        $this->getRouter()->addDefault($this);
+        return $this;
+    }
     
     public function getMatch(Router $router){
         $routes = $router->getRoutes();

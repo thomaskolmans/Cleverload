@@ -80,39 +80,49 @@ class Cleverload {
     public function getExcecutiontime(){
         return  $this->end_time - $this->start_time;
     }
+    
     public function setTemplate($boolean){
         $this->template = $boolean;
     }
+
     public function getTemplate(){
         return $this->template;
     }
+
     public function setViewDir($dir){
         $this->viewdir = $dir;
         return $this;
     }
+
     public function getViewDir(){
         return $this->viewdir;
     }
+
     public function setStaticFilesDir($dir){
         $this->staticfilesdir = $dir;
         return $this;
     }
+
     public function getStaticFilesDir(){
         return $this->staticfilesdir;
     }
+
     public function setCaseSensitive($bool){
         $this->caseSensitive = $bool;
         return $this;
     }
+
     public function getCaseSensitive(){
         return $this->caseSensitive;
     }
+
     public function forceHttps(){
         if($_SERVER["HTTPS"] != "on"){
             header("Location: https://" . $_SERVER["HTTP_HOST"] . $_SERVER["REQUEST_URI"]);
             exit;
         }
     }
+
     public function getRequest(){
         return $this->request;
     }
