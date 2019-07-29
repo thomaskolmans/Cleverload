@@ -71,7 +71,7 @@ class Cleverload {
         header("Access-Control-Allow-Headers: ".implode(", ", $headers));
         header("Access-Control-Allow-Methods: ".implode(", ", $methods));
 
-        //preflight
+        //pre-flight
         if($this->request->getMethod() === "OPTIONS"){
             exit;
         }
