@@ -60,6 +60,7 @@ class Route {
             $this->getRouter()->response->sendFile(Cleverload::getInstance()->getStaticFilesDir().$this->uri);
         } else {
             $matchedroute = $this->getMatch($this->getRouter());
+            var_dump($matchedroute->uri); exit;
             if ($matchedroute == null) {
                 $matchedroute = $this->getRouter()->response->notFound();
             }
@@ -129,7 +130,7 @@ class Route {
                 continue;
             }
         }
-        
+
         if(!$found){
             if($this->sectioncount <= 1){
                 $matches = [];
@@ -149,15 +150,12 @@ class Route {
                 $default = $this->getRouter()->getDefault();
 
                 if($default == null){
-                    $this->getClosest($routes);
+                    return $this->getClosest($routes);
                 }
                 return $default;
-            } else {
-                return $this->getRouter()->response->notFound();
             }
-            return $this->getRouter()->getDefault();
+                return $this->getRouter()->response->notFound();
         }
-        
         return $this->handleMatch($routes[0]);
     }
 
