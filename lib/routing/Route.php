@@ -60,7 +60,6 @@ class Route {
             $this->getRouter()->response->sendFile(Cleverload::getInstance()->getStaticFilesDir().$this->uri);
         } else {
             $matchedroute = $this->getMatch($this->getRouter());
-            var_dump($matchedroute->uri); exit;
             if ($matchedroute == null) {
                 $matchedroute = $this->getRouter()->response->notFound();
             }
