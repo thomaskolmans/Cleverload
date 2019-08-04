@@ -95,8 +95,11 @@ class Template extends Router{
         for($i = 0; $i < count($matches); $i++){
             $match = trim($matches[$i]);
             if($i <= count(self::$php) - 1){
-                if(self::$php[$i][0] == $match){
-                    $content = str_replace(trim($match), self::$php[$i][1], $content);
+                foreach(self::$php as $phpPart) {
+                    if($phpPart[0] == $match){
+                        $content = str_replace(trim($match), $phpPart[1], $content);
+                        break;
+                    }
                 }
                 continue;
             }
