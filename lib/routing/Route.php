@@ -397,8 +397,8 @@ class Route {
 
     public static function explodeIntoSections($divider,$string,$type){
         $arr = [];
-        foreach(array_filter(array_values(explode($divider,$string))) as $section){ 
-            if(!empty($section)){
+        foreach(array_values(explode($divider,$string)) as $section){ 
+            if($section !== ""){
                 $arr[] = new Section($section);
             }
         }
