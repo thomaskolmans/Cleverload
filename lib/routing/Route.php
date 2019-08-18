@@ -164,8 +164,8 @@ class Route {
                 $key = $this->getSection($j - 1)->toString();
                 $value = $this->getSection($j)->toString();
                 $route->bindVariable($key,$value);
-                return true;
             } 
+            return true;
         }
         return false;
     }
