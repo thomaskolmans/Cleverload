@@ -95,6 +95,7 @@ class Route {
     
     public function getMatch(Router $router){
         $routes = $router->getRoutes();
+
         if(count($routes) < 1){
             $this->getRouter()->response->noRoutes();
         }
@@ -466,7 +467,7 @@ class Route {
     }
 
     public function isValid(){
-        return preg_match("/[a-zA-Z\/}{]*/", $path);
+        return preg_match("/[a-zA-Z\/}{]*/", $this->path);
     }
 
     public function getURI(){

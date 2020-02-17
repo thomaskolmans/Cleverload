@@ -1,6 +1,8 @@
 <?php
 namespace lib\routing;
 
+use lib\Cleverload;
+
 class RouterCollection {
     
     public $routes = [];
@@ -28,7 +30,7 @@ class RouterCollection {
                 }
                 return $this;
             }
-            $this->get($uri,$file);
+            Route::get($uri,$file);
             return $this;
         }
     }

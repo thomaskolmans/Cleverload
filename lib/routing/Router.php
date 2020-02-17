@@ -55,15 +55,35 @@ class Router {
     }
 
     public function group(array $arguments, callable $action){
-        $this->addToGroupstack($arguments, $action);
-        $action($this);
-        array_pop($this->groupstack);
+        foreach($arguments as $key => $argument) {
+            if (is_array($argument)){
+                foreach($argument as $a) {
+                    $this->addToGroupstack([$key => $a], $action);
+                    $action($this);
+                    array_pop($this->groupstack);
+                }
+            } else {
+                $this->addToGroupstack([$key => $argument], $action);
+                $action($this);
+                array_pop($this->groupstack);
+            }
+        }
     }
 
     public function middleware(array $arguments, callable $before, callable $action) {
-        $this->addToMiddlewareStack($arguments, $before, $action);
-        $action($this);
-        array_pop($this->middlewarestack);
+        foreach($arguments as $key => $argument) {
+            if (is_array($argument)){
+                foreach($argument as $a) {
+                    $this->addToGroupstack([$key => $a], $action);
+                    $action($this);
+                    array_pop($this->groupstack);
+                }
+            } else {
+                $this->addToMiddlewareStack([$key => $argument], $before, $action);
+                $action($this);
+                array_pop($this->middlewarestack);
+            }
+        }
     }
 
     private function add($method,$uri,$action){
