@@ -69,8 +69,12 @@ class TemplateLoader{
         $tmp = tempnam(sys_get_temp_dir(), "contentfile");
         file_put_contents($tmp, $content);
         ob_start();
+        
         require $tmp;
         $output = ob_get_clean(); 
+
+        unlink($tmp);
+
         return $output;
     }
 
