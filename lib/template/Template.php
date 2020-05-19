@@ -85,7 +85,7 @@ class Template extends Router{
         foreach($matches as $match){
             $uid = uniqid();
             $content = str_replace($match," ".$uid." ",$content);
-            self::$php[] = array($uid,$match);
+            self::$php[] = array($uid, base64_encode($match));
         }
         return $content;
     }
@@ -97,7 +97,7 @@ class Template extends Router{
             if($i <= count(self::$php) - 1){
                 foreach(self::$php as $phpPart) {
                     if($phpPart[0] == $match){
-                        $content = str_replace(trim($match), $phpPart[1], $content);
+                        $content = str_replace(trim($match), base64_decode($phpPart[1]), $content);
                         break;
                     }
                 }
