@@ -61,7 +61,7 @@ class TemplateLoader{
     }
 
     public function getDomContent(){
-        $html = $this->dom->saveHTML();
+        $html = $this->dom->saveHTML($this->dom);
         return htmlspecialchars_decode($this->template->insertPHP($html)); 
     }
 
