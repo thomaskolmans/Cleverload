@@ -8,6 +8,20 @@ return array(
 
     "template_tags" => array(
         "include"
+    ),
+    "extensions_template_tags" => array(
+        "php",
+        "html",
+        "htm",
+        "tpl",
+        "htpl"
+    ),
+    "extension_template_plugin" => array(
+        "php",
+        "html",
+        "htm",
+        "tpl",
+        "htpl"
     )
 
 );
