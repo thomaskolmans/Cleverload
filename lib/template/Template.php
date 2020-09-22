@@ -112,6 +112,7 @@ class Template extends Router{
             }
         }
     }
+
     private function extractPHP($content){
         $matches = self::getInBetween($content,"<?php", "?>");
         foreach($matches as $match){
@@ -160,7 +161,6 @@ class Template extends Router{
     public function load(){
         if ($this->dom != null && !empty($this->dom)) {
             $templateLoader = new TemplateLoader($this);
-            echo "<code>".htmlspecialchars(htmlspecialchars_decode($this->dom->saveHTML($this->dom)))."</code></br>"; 
             return $templateLoader->execute();
         }
     }
