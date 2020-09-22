@@ -4,7 +4,6 @@ namespace lib\template;
 use lib\Routing\Router;
 use lib\Routing\Route;
 use lib\Cleverload;
-use lib\exception\UnexpectedPlugin;
 
 class Template extends Router{
     
@@ -20,13 +19,11 @@ class Template extends Router{
             $this->route = $input;
             $this->filepath = Cleverload::getInstance()->getViewDir()."/".$input->getFile();
             $file = $this->getFile();
-
             if ($file != null){
-                $this->getDomFromFile($file);
+                $this->dom = $this->getDomFromFile($file);
             }
-
         } else {
-            $this->getDom($input);
+            $this->dom = $this->getDom($input);
         }
 
     }
@@ -47,21 +44,16 @@ class Template extends Router{
     }
 
     public function getDomFromFile($file){
-        $this->dom = new \DOMDocument();
+        $dom = new \DOMDocument();
         $content = file_get_contents($file);
-        $this->dom->loadHTML($content);
-        $this->executeTags();
-        $this->executePlugins();
-        $this->dom->loadHTML($this->extractPHP($this->getContent()));
-        return $this->dom;
+        $content = $this->extractPHP($content);
+        $dom->loadHTML($content);
+        return $dom;
     }
 
     public function getDom($content){
         $this->dom = new \DOMDocument();
-        $this->dom->loadHTML($content);
-        $this->executeTags();
-        $this->executePlugins();
-        $this->dom->loadHTML($this->extractPHP($this->getContent()));
+        $this->dom->loadHTML($this->extractPHP($content));
         return $this->dom;
     }
 
@@ -80,40 +72,15 @@ class Template extends Router{
         return $this;
     }
 
-    public function executePlugins(){
-        $content = $this->getContent();
-        $this->getPlugins($content);
+    public function getAllowedExtensionsForTags(){
+        return Cleverload::getConfig("extensions_template_tags");
     }
 
-    public function executeTags(){
-        $this->getTags();
+    public function getAllowedExtensionsForPlugins(){
+        return Cleverload::getConfig("extension_template_plugin");
     }
 
-    public function getTags(){
-        $tags = scandir(__DIR__."/tags");
-        unset($tags[0]);unset($tags[1]);
-        foreach($tags as $tag){
-            $file = pathinfo($tag);
-            $class = "lib\\template\\tags\\".$file["filename"];
-            new $class($this->dom);
-        }
-    }
-
-    private function getPlugins($content){
-        preg_match_all("/(?<=@{)(.*)(?=})/", $content, $plugins);
-        foreach($plugins[0] as $plugin){
-            $parts = explode(" ",$plugin);
-            $compile = $parts[0];
-            $class = "lib\\template\\plugins\\TPlugin_".$compile;
-            if(class_exists($class)) {
-                new $class($content,$plugin);
-            } else {
-                throw new UnexpectedPlugin($compile." is not valid");
-            }
-        }
-    }
-
-    private function extractPHP($content){
+    public function extractPHP($content){
         $matches = self::getInBetween($content,"<?php", "?>");
         foreach($matches as $match){
             $uid = uniqid();
