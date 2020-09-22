@@ -112,15 +112,6 @@ class Template extends Router{
             }
         }
     }
-
-    private function getAllowedExtensionsForTags(){
-        return Cleverload::getConfig("extensions_template_tags");
-    }
-
-    private function getAllowedExtensionsForPlugins(){
-        return Cleverload::getConfig("extension_template_plugin");
-    }
-
     private function extractPHP($content){
         $matches = self::getInBetween($content,"<?php", "?>");
         foreach($matches as $match){
