@@ -72,11 +72,11 @@ class Template extends Router{
         return $this;
     }
 
-    public function getAllowedExtensionsForTags(){
+    public static function getAllowedExtensionsForTags(){
         return Cleverload::getConfig("extensions_template_tags");
     }
-
-    public function getAllowedExtensionsForPlugins(){
+    
+    public static function getAllowedExtensionsForPlugins(){
         return Cleverload::getConfig("extension_template_plugin");
     }
 
